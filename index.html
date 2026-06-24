@@ -1,0 +1,676 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BOOBME</title>
+    <style>
+        /* 全域重置與字型 — 完全 Google 風格 */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+            background: #fff;
+            color: #202124;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            min-height: 100vh;
+            padding: 20px 20px 0;
+        }
+
+        .main-container {
+            max-width: 600px;
+            width: 100%;
+            margin-top: 10vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .logo-area {
+            margin-bottom: 28px;
+            text-align: center;
+            user-select: none;
+        }
+
+        .boobme-logo {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 5.5rem;
+            font-weight: 500;
+            letter-spacing: -2px;
+            line-height: 1.2;
+            font-family: 'Segoe UI', Arial, sans-serif;
+        }
+
+        .boobme-logo .b1 { color: #4285F4; }
+        .boobme-logo .o1 { color: #EA4335; }
+        .boobme-logo .o2 { color: #FBBC05; }
+        .boobme-logo .b2 { color: #4285F4; }
+        .boobme-logo .m1 { color: #34A853; }
+        .boobme-logo .e1 { color: #EA4335; }
+
+        .boobme-logo span {
+            display: inline-block;
+        }
+
+        .search-box {
+            width: 100%;
+            display: flex;
+            align-items: center;
+            background: #fff;
+            border: 1px solid #dfe1e5;
+            border-radius: 24px;
+            padding: 0 16px;
+            height: 46px;
+            box-shadow: 0 1px 6px rgba(32, 33, 36, 0.08);
+            transition: box-shadow 0.2s, border-color 0.2s;
+            margin-bottom: 28px;
+        }
+
+        .search-box:hover {
+            box-shadow: 0 1px 6px rgba(32, 33, 36, 0.18);
+            border-color: rgba(223, 225, 229, 0);
+        }
+
+        .search-box:focus-within {
+            border-color: #4285F4;
+            box-shadow: 0 1px 8px rgba(66, 133, 244, 0.25);
+        }
+
+        .search-icon {
+            color: #9aa0a6;
+            font-size: 20px;
+            margin-right: 12px;
+            display: flex;
+            align-items: center;
+            flex-shrink: 0;
+        }
+
+        .search-box input {
+            flex: 1;
+            border: none;
+            outline: none;
+            font-size: 16px;
+            background: transparent;
+            color: #202124;
+            height: 100%;
+            padding: 0;
+            font-family: Arial, sans-serif;
+        }
+
+        .search-box input::placeholder {
+            color: #9aa0a6;
+            font-weight: 400;
+        }
+
+        /* 麥克風已移除 */
+
+        .button-group {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .btn {
+            background-color: #f8f9fa;
+            border: 1px solid #f8f9fa;
+            border-radius: 4px;
+            color: #3c4043;
+            padding: 0 20px;
+            height: 36px;
+            font-size: 14px;
+            font-family: Arial, sans-serif;
+            cursor: pointer;
+            transition: box-shadow 0.2s, border-color 0.2s, background 0.1s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            letter-spacing: 0.3px;
+            background-color: #f8f9fa;
+            border: 1px solid #f8f9fa;
+            box-shadow: none;
+        }
+
+        .btn:hover {
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            border-color: #dadce0;
+            background-color: #f8f9fa;
+        }
+
+        .btn:active {
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.15);
+            background: #e8eaed;
+        }
+
+        .result-area {
+            width: 100%;
+            margin-top: 8px;
+            border-top: 1px solid #ebebeb;
+            padding-top: 18px;
+            min-height: 100px;
+            transition: 0.1s;
+        }
+
+        .result-stats {
+            font-size: 14px;
+            color: #70757a;
+            margin-bottom: 16px;
+            padding-bottom: 6px;
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: space-between;
+            border-bottom: 1px solid #ebebeb;
+            padding-bottom: 12px;
+        }
+
+        .result-stats span {
+            color: #70757a;
+        }
+
+        .result-item {
+            margin-bottom: 24px;
+            padding: 0 4px;
+        }
+
+        .result-title {
+            font-size: 18px;
+            line-height: 1.3;
+            margin-bottom: 2px;
+        }
+
+        .result-title a {
+            color: #1a0dab;
+            text-decoration: none;
+            cursor: pointer;
+            font-weight: 400;
+            font-family: Arial, sans-serif;
+        }
+
+        .result-title a:hover {
+            text-decoration: underline;
+        }
+
+        .result-link {
+            font-size: 14px;
+            color: #006621;
+            margin-bottom: 4px;
+            font-weight: 400;
+            word-break: break-all;
+            font-family: Arial, sans-serif;
+        }
+
+        .result-snippet {
+            font-size: 14px;
+            color: #4d5156;
+            line-height: 1.6;
+            font-family: Arial, sans-serif;
+        }
+
+        .result-snippet em {
+            font-style: normal;
+            font-weight: 700;
+            background: #f9f9f9;
+            color: #202124;
+            text-decoration: underline;
+            text-underline-offset: 2px;
+        }
+
+        .result-title em {
+            font-style: normal;
+            font-weight: 700;
+            background: #f9f9f9;
+            color: #202124;
+            text-decoration: underline;
+            text-underline-offset: 2px;
+        }
+
+        .no-result {
+            color: #70757a;
+            text-align: center;
+            padding: 30px 0;
+            font-size: 16px;
+            font-family: Arial, sans-serif;
+        }
+
+        .footer-note {
+            margin-top: 30px;
+            font-size: 12px;
+            color: #9aa0a6;
+            text-align: center;
+            padding: 16px 0 8px;
+            border-top: 1px solid #e8eaed;
+            width: 100%;
+            max-width: 600px;
+            font-family: Arial, sans-serif;
+        }
+
+        .footer-note span {
+            margin: 0 8px;
+        }
+
+        .audio-player {
+            margin: 6px 0 2px;
+        }
+        .audio-player audio {
+            width: 100%;
+            max-width: 300px;
+            height: 32px;
+        }
+
+        @media (max-width: 500px) {
+            .boobme-logo {
+                font-size: 3.8rem;
+            }
+            .search-box {
+                height: 44px;
+            }
+            .btn {
+                padding: 0 16px;
+                font-size: 13px;
+                height: 34px;
+            }
+            .result-title {
+                font-size: 16px;
+            }
+        }
+
+        /* 新分頁專屬樣式 */
+        .detail-page-body {
+            font-family: Arial, Helvetica, sans-serif;
+            max-width: 800px;
+            margin: 30px auto;
+            padding: 20px 24px;
+            line-height: 1.9;
+            color: #1a1a1a;
+            background: #fafafa;
+            border-radius: 12px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+        }
+        .detail-page-body h1 {
+            font-size: 28px;
+            font-weight: 600;
+            color: #202124;
+            margin-bottom: 20px;
+            line-height: 1.3;
+            border-bottom: 2px solid #e8eaed;
+            padding-bottom: 14px;
+        }
+        .detail-page-body p {
+            font-size: 18px;
+            line-height: 1.9;
+            margin-bottom: 18px;
+            color: #2d2d2d;
+        }
+        .detail-page-body .close-link {
+            display: inline-block;
+            margin-top: 28px;
+            padding: 10px 22px;
+            background: #f1f3f4;
+            border-radius: 24px;
+            color: #1a0dab;
+            text-decoration: none;
+            font-size: 16px;
+            font-weight: 500;
+            transition: background 0.2s;
+        }
+        .detail-page-body .close-link:hover {
+            background: #e8eaed;
+        }
+        @media (max-width: 600px) {
+            .detail-page-body {
+                padding: 16px 18px;
+                margin: 12px 10px;
+            }
+            .detail-page-body h1 {
+                font-size: 24px;
+            }
+            .detail-page-body p {
+                font-size: 18px;
+                line-height: 1.8;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="main-container">
+        <div class="logo-area">
+            <div class="boobme-logo">
+                <span class="b1">B</span>
+                <span class="o1">o</span>
+                <span class="o2">o</span>
+                <span class="b2">b</span>
+                <span class="m1">m</span>
+                <span class="e1">e</span>
+            </div>
+        </div>
+
+        <div class="search-box" id="searchBox">
+            <span class="search-icon">🔍</span>
+            <input type="text" id="searchInput" placeholder="在 BOOBME 搜尋..." autocomplete="off">
+            <!-- 麥克風已移除 -->
+        </div>
+
+        <div class="button-group">
+            <button class="btn btn-primary" id="searchBtn">BOOBME 搜尋</button>
+        </div>
+
+        <div class="result-area" id="resultArea">
+            <div class="result-stats">
+                <span id="resultCount"></span>
+                <span style="font-size: 13px; color: #9aa0a6;">約 0 項結果</span>
+            </div>
+            <div id="resultList">
+                <div class="no-result">輸入關鍵字以搜尋 BOOBME</div>
+            </div>
+        </div>
+
+        <div class="footer-note">
+            <span>© 2026 BOOBME</span>
+            <span>·</span>
+            <span>隱私權</span>
+            <span>·</span>
+            <span>條款</span>
+        </div>
+    </div>
+
+    <script>
+        (function() {
+            // ---------- 資料庫 — 已移除標題中的指定文字 ----------
+            const DATA = [
+                // 1. 影后 Victoria (洛知瑤) 維基百科
+                {
+                    title: 'Victoria Luo 洛知瑤 — 維基百科',
+                    link: 'boobme://wiki/victoria_luo',
+                    snippet: '洛知瑤（Victoria Luo，1976年7月20日－），台灣知名演員、影后。2000年1月與全球十大富豪、Boobme創辦人顧瑞奇結婚，世紀婚禮轟動一時。同年誕下獨子顧承澤。以「國民媽媽」形象深植人心，主演多部家庭電影與連續劇。常年患有心臟病，曾在公開場合暈倒。',
+                    detail: '洛知瑤（Victoria Luo，1976年7月20日－），台灣知名演員、影后。2000年1月與全球十大富豪、Boobme創辦人顧瑞奇結婚，世紀婚禮轟動一時。同年誕下獨子顧承澤。以「國民媽媽」形象深植人心，主演多部家庭電影與連續劇。她曾三度獲得金馬獎最佳女主角，並於2010年成立「知瑤慈善基金會」，長期關注兒童教育與弱勢家庭。常年患有心臟病，曾在公開場合暈倒，健康狀況備受關注。'
+                },
+                // 2. 顧承澤接班
+                {
+                    title: '顧瑞奇獨子顧承澤成年禮 正式接掌Boobme副總',
+                    link: 'boobme://news/chengze_succession',
+                    snippet: '2018年10月30日，全球十大富豪顧瑞奇與影后Victoria（洛知瑤）之子顧承澤於成年禮上宣布接手父親企業，出任Boobme副總經理。顧承澤畢業於北一中，以市長獎及學生代表身分獲榮譽，近期入學台大醫工系，學霸形象備受矚目。',
+                    detail: '2018年10月30日，全球十大富豪顧瑞奇與影后Victoria（洛知瑤）之子顧承澤於成年禮上宣布接手父親企業，出任Boobme副總經理。顧承澤畢業於北一中，以市長獎及學生代表身分獲榮譽，近期入學台大醫工系，學霸形象備受矚目。業界普遍認為，顧承澤的接班象徵Boobme將迎來年輕化與創新轉型。'
+                },
+                // 3. 顧承澤失蹤
+                {
+                    title: 'Boobme副總顧承澤離奇失蹤！最後身影現身B市711',
+                    link: 'boobme://news/chengze_missing',
+                    snippet: '今日（2026年7月1日）接獲通報，Boobme副總經理顧承澤驚傳失蹤。警方表示，最後一次市區監視器拍到其身影是在B市某間711超商。目前家屬與公司皆焦急萬分，記者蘇予真報導。',
+                    detail: '今日（2026年7月1日）接獲通報，Boobme副總經理顧承澤驚傳失蹤。警方表示，最後一次市區監視器拍到其身影是在B市某間711超商。目前家屬與公司皆焦急萬分，記者蘇予真報導。據了解，顧承澤失蹤前曾表示要前往公司處理緊急事務，卻在途中失聯，警方已成立專案小組展開調查。'
+                },
+                // 4. Close AI
+                {
+                    title: 'Close AI 推出「chatbme」 掀起全球AI對話革命',
+                    link: 'boobme://news/chatbme_launch',
+                    snippet: '2022年11月30日，Close AI 團隊（Kevin、Eason、Jake等人）正式發表「chatbme」，一款基於大型語言模型的對話式AI，其能力與轟動程度堪比ChatGPT問世，迅速席捲全球，改變人機互動模式。',
+                    detail: '2022年11月30日，Close AI 團隊（Kevin、Eason、Jake等人）正式發表「chatbme」，一款基於大型語言模型的對話式AI，其能力與轟動程度堪比ChatGPT問世，迅速席捲全球，改變人機互動模式。chatbme 支援多語言、程式碼生成與創意寫作，上線首月即突破1億用戶，被譽為「亞洲的AI奇蹟」。'
+                },
+                // 5. Oqen AI
+                {
+                    title: 'Oqen AI 控訴 Close AI 竊取技術？ Close AI 反擊：無稽之談',
+                    link: 'boobme://news/oqen_copycat',
+                    snippet: '繼 Close AI 推出 chatbme 造成世界級轟動後，2022年12月25日，Oqen AI 公開聲稱其核心技術遭 Close AI 團隊竊取。但 Close AI 旋即出示研發日誌與專利證據，強力駁斥，證明 Oqen AI 指控為無稽之談。',
+                    detail: '繼 Close AI 推出 chatbme 造成世界級轟動後，2022年12月25日，Oqen AI 公開聲稱其核心技術遭 Close AI 團隊竊取。但 Close AI 旋即出示研發日誌與專利證據，強力駁斥，證明 Oqen AI 指控為無稽之談。此事件引發科技圈熱議，專家認為 Oqen AI 恐是為了博取聲量而進行的商業操作。'
+                },
+                // 6. 陳志豪
+                {
+                    title: '警員陳志豪憑體能優勢 破獲製毒工廠 起獲大批槍械',
+                    link: 'boobme://news/chen_zhihao_bust',
+                    snippet: '2026年6月6日，警員陳志豪憑藉過人體能與敏捷身手，在追緝過程中成功壓制多名毒販，破獲新型製毒工廠，起獲大批槍械彈藥。陳員為體育系出身，擅長長跑與格鬥，近期從Z市調回B市，加入江牧川警官帶領的第一刑事調查組。',
+                    detail: '2026年6月6日，警員陳志豪憑藉過人體能與敏捷身手，在追緝過程中成功壓制多名毒販，破獲新型製毒工廠，起獲大批槍械彈藥。陳員為體育系出身，擅長長跑與格鬥，近期從Z市調回B市，加入江牧川警官帶領的第一刑事調查組。此次行動中，陳志豪以驚人的爆發力率先衝入工廠，並以矯健的身手制伏企圖逃逸的主嫌，展現其體育長才在實務上的價值。'
+                },
+                // 7. 酒醉男子
+                {
+                    title: '酒醉男子大鬧派出所 辱罵警員遭拘留3天',
+                    link: 'boobme://news/drunk_man',
+                    snippet: '2012年8月15日，吳姓男子醉倒在派出所前，警員上前詢問時，吳男口出惡言辱罵警員並揮拳相向，隨即遭警方壓制，依妨害公務等罪嫌拘留3天。',
+                    detail: '2012年8月15日，吳姓男子醉倒在派出所前，警員上前詢問時，吳男口出惡言辱罵警員並揮拳相向，隨即遭警方壓制，依妨害公務等罪嫌拘留3天。此事件當時引發社會對酒後脫序行為的關注，警方也呼籲民眾理性飲酒。'
+                },
+                // 8. 江牧川
+                {
+                    title: '江牧川警官率第一刑事調查組 屢破奇案 從降職到晉升',
+                    link: 'boobme://news/jiang_muchuan',
+                    snippet: '2025年4月29日，江牧川警官帶領的第一刑事調查組再破重大案件。回顧1年前，江牧川因意外放跑通緝犯從A市降職至B市，但後續憑藉多次亮眼表現將功補罪，晉升警官，其率領的小組更成為B市第一刑事調查組，屢建奇功。',
+                    detail: '2025年4月29日，江牧川警官帶領的第一刑事調查組再破重大案件。回顧1年前，江牧川因意外放跑通緝犯從A市降職至B市，但後續憑藉多次亮眼表現將功補罪，晉升警官，其率領的小組更成為B市第一刑事調查組，屢建奇功。江牧川以縝密的推理和科技辦案聞名，被譽為「B市福爾摩斯」。'
+                },
+                // 9. ten little indians
+                {
+                    title: 'ten little indians',
+                    link: 'boobme://audio/ten_little_indians',
+                    snippet: '經典童謠「Ten Little Indians」音頻播放。',
+                    detail: '經典童謠「Ten Little Indians」音頻播放。',
+                    hasAudio: true,
+                    audioSrc: 'https://www.soundjay.com/misc/sounds/bell-ringing-05.mp3'
+                },
+                // 10. 依托咪酯
+                {
+                    title: '實測依托咪酯 記者蘇予真採訪臺大化工系教授 發現會導致慢性中毒',
+                    link: 'boobme://news/etomidate_test',
+                    snippet: '記者蘇予真採訪臺大化工系教授，並與實驗室學生合作測試依托咪酯，發現其會導致慢性中毒，對人體神經系統造成不可逆損傷。',
+                    detail: '記者蘇予真採訪臺大化工系教授，並與實驗室學生合作測試依托咪酯，發現其會導致慢性中毒，對人體神經系統造成不可逆損傷。研究團隊呼籲政府應加強管制，避免該物質被濫用於娛樂用途。'
+                },
+                // 11. 一噴即暈 — 已移除「號稱一噴即暈」
+                {
+                    title: '無色無味噴霧 號稱一噴即暈 專家呼籲提高警覺',
+                    link: 'boobme://news/spray_knockout',
+                    snippet: '近日流傳一種無色無味的噴霧，號稱噴灑後能使人瞬間昏迷。專家呼籲民眾提高警覺，避免成為犯罪工具。',
+                    detail: '近日流傳一種無色無味的噴霧，號稱噴灑後能使人瞬間昏迷。專家呼籲民眾提高警覺，避免成為犯罪工具。警方已介入調查該噴霧的來源與成分。'
+                },
+                // 12. 北一中學生
+                {
+                    title: '國家棟梁 北一中學生服用過量安眠藥致死 老師：很好的孩子',
+                    link: 'boobme://news/beiyi_student_death',
+                    snippet: '2016年7月18日，北一中吳姓女同學在校園內被發現失去呼吸，身邊散落安眠藥及空瓶，搶救後不治。班導林雨棠老師說她非常關心同學，只是比較不會透露自己的事，家庭困難。父親吳金發說女兒患有憂鬱症，多次說想自殺。同學悲痛表示她長年被酗酒賭博的爸爸家暴。',
+                    detail: '2016年7月18日，北一中吳姓女同學在校園內被發現失去呼吸，身邊散落安眠藥及空瓶，搶救後不治。班導林雨棠老師說她非常關心同學，只是比較不會透露自己的事，家庭困難。父親吳金發說女兒患有憂鬱症，多次說想自殺。同學悲痛表示她長年被酗酒賭博的爸爸家暴，可能因此撐不下去才選擇結束生命。'
+                },
+                // 13. 微電影
+                {
+                    title: '恭賀B市藝術大學畢業微電影《奇跡女孩》獲全國第一名',
+                    link: 'boobme://news/miracle_girl',
+                    snippet: '由B市藝術大學畢業生洛知瑤與林雨棠主演的雙女主微電影《奇跡女孩 Wonder》，榮獲全國微電影競賽第一名。內容講述面部畸形小女孩入學後，面對異樣眼光、言語嘲弄到最終建立友誼的溫馨過程。',
+                    detail: '由B市藝術大學畢業生洛知瑤與林雨棠主演的雙女主微電影《奇跡女孩 Wonder》，榮獲全國微電影競賽第一名。內容講述面部畸形小女孩入學後，面對異樣眼光、言語嘲弄到最終建立友誼的溫馨過程。評審盛讚其情感真摯，演技動人。'
+                },
+                // 14. Renee's blog — 已移除「(蘇予真部落格)」
+                {
+                    title: 'Renee\'s blog — 蘇予真 個人部落格',
+                    link: 'boobme://blog/renee_su',
+                    snippet: '記者蘇予真（Renee Su）的個人部落格，記錄生活、採訪與社會觀察。',
+                    detail: '記者蘇予真（Renee Su）的個人部落格，記錄生活、採訪與社會觀察。內容稍後補齊。'
+                },
+                {
+                    title: '顧瑞奇 — Boobme 創辦人 全球十大富豪',
+                    link: 'boobme://wiki/richard_gu',
+                    snippet: '顧瑞奇，Boobme 創辦人，全球十大富豪之一。與影后 Victoria 洛知瑤於2000年結婚，育有一子顧承澤。',
+                    detail: '顧瑞奇，Boobme 創辦人，全球十大富豪之一。與影后 Victoria 洛知瑤於2000年結婚，育有一子顧承澤。顧瑞奇白手起家，從軟體工程師逐步打造出 Boobme 帝國，其商業哲學與慈善事業廣為人知。'
+                },
+                {
+                    title: '北一中 市長獎 顧承澤 學生代表',
+                    link: 'boobme://edu/beiyi',
+                    snippet: '顧承澤以優異成績畢業於北一中，榮獲市長獎並擔任學生代表，現為台大醫工系學生。',
+                    detail: '顧承澤以優異成績畢業於北一中，榮獲市長獎並擔任學生代表，現為台大醫工系學生。他在學期間曾多次代表學校參加國際科學競賽，並獲得佳績，展現出過人的學術天賦。'
+                }
+            ];
+
+            const searchInput = document.getElementById('searchInput');
+            const searchBtn = document.getElementById('searchBtn');
+            const resultList = document.getElementById('resultList');
+            const resultCount = document.getElementById('resultCount');
+
+            function renderResults(query) {
+                const trimmed = query.trim().toLowerCase();
+                let filtered = [];
+
+                if (trimmed === '') {
+                    resultList.innerHTML = `<div class="no-result">輸入關鍵字以搜尋 BOOBME</div>`;
+                    resultCount.textContent = '';
+                    return;
+                }
+
+                filtered = DATA.filter(item => {
+                    return item.title.toLowerCase().includes(trimmed);
+                });
+
+                if (filtered.length === 0) {
+                    resultList.innerHTML = `<div class="no-result">找不到與「${query}」相關的結果。</div>`;
+                    resultCount.textContent = '約 0 項結果';
+                    return;
+                }
+
+                resultCount.textContent = `約 ${filtered.length} 項結果`;
+
+                let html = '';
+                filtered.forEach(item => {
+                    let titleDisplay = item.title;
+                    let snippetDisplay = item.snippet;
+                    if (trimmed.length > 0) {
+                        const regex = new RegExp(`(${trimmed.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi');
+                        titleDisplay = titleDisplay.replace(regex, '<em>$1</em>');
+                        snippetDisplay = snippetDisplay.replace(regex, '<em>$1</em>');
+                    }
+
+                    const detailEncoded = encodeURIComponent(item.detail);
+                    const hasAudio = item.hasAudio || false;
+                    const audioSrc = item.audioSrc || '';
+
+                    let audioHtml = '';
+                    if (hasAudio && audioSrc) {
+                        audioHtml = `
+                            <div class="audio-player">
+                                <audio controls>
+                                    <source src="${audioSrc}" type="audio/mpeg">
+                                    您的瀏覽器不支援音頻播放。
+                                </audio>
+                            </div>
+                        `;
+                    }
+
+                    html += `
+                        <div class="result-item">
+                            <div class="result-title"><a href="#" data-detail="${detailEncoded}" data-title="${item.title}" class="result-link-click">${titleDisplay}</a></div>
+                            <div class="result-link">${item.link}</div>
+                            <div class="result-snippet">${snippetDisplay}</div>
+                            ${audioHtml}
+                        </div>
+                    `;
+                });
+
+                resultList.innerHTML = html;
+
+                document.querySelectorAll('.result-link-click').forEach(link => {
+                    link.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        const detail = decodeURIComponent(this.dataset.detail);
+                        const title = this.dataset.title;
+                        const newWindow = window.open('', '_blank');
+                        if (newWindow) {
+                            newWindow.document.write(`
+                                <html>
+                                <head>
+                                    <title>${title}</title>
+                                    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                                    <style>
+                                        body {
+                                            font-family: Arial, Helvetica, sans-serif;
+                                            max-width: 800px;
+                                            margin: 30px auto;
+                                            padding: 20px 24px;
+                                            line-height: 1.9;
+                                            color: #1a1a1a;
+                                            background: #fafafa;
+                                            border-radius: 12px;
+                                            box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+                                        }
+                                        h1 {
+                                            font-size: 28px;
+                                            font-weight: 600;
+                                            color: #202124;
+                                            margin-bottom: 20px;
+                                            line-height: 1.3;
+                                            border-bottom: 2px solid #e8eaed;
+                                            padding-bottom: 14px;
+                                        }
+                                        p {
+                                            font-size: 18px;
+                                            line-height: 1.9;
+                                            margin-bottom: 18px;
+                                            color: #2d2d2d;
+                                        }
+                                        .close-link {
+                                            display: inline-block;
+                                            margin-top: 28px;
+                                            padding: 10px 22px;
+                                            background: #f1f3f4;
+                                            border-radius: 24px;
+                                            color: #1a0dab;
+                                            text-decoration: none;
+                                            font-size: 16px;
+                                            font-weight: 500;
+                                            transition: background 0.2s;
+                                        }
+                                        .close-link:hover {
+                                            background: #e8eaed;
+                                        }
+                                        @media (max-width: 600px) {
+                                            body {
+                                                padding: 16px 18px;
+                                                margin: 12px 10px;
+                                            }
+                                            h1 {
+                                                font-size: 24px;
+                                            }
+                                            p {
+                                                font-size: 18px;
+                                                line-height: 1.8;
+                                            }
+                                        }
+                                    </style>
+                                </head>
+                                <body>
+                                    <h1>${title}</h1>
+                                    <p>${detail}</p>
+                                    <p><a href="#" onclick="window.close();" class="close-link">✕ 關閉此頁</a></p>
+                                </body>
+                                </html>
+                            `);
+                            newWindow.document.close();
+                        } else {
+                            alert('請允許彈出視窗，以查看詳細內容。');
+                        }
+                    });
+                });
+            }
+
+            function performSearch() {
+                const query = searchInput.value;
+                renderResults(query);
+            }
+
+            searchBtn.addEventListener('click', performSearch);
+            searchInput.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    performSearch();
+                }
+            });
+            searchInput.addEventListener('input', () => {
+                const val = searchInput.value;
+                if (val === '') {
+                    renderResults('');
+                }
+            });
+
+            renderResults('');
+        })();
+    </script>
+</body>
+</html>
