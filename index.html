@@ -150,6 +150,17 @@
             background: #e8eaed;
         }
 
+        /* IP查詢器專屬按鈕 */
+        .btn-ip {
+            background-color: #e8f0fe;
+            border: 1px solid #dadce0;
+            color: #1a73e8;
+        }
+        .btn-ip:hover {
+            background-color: #d2e3fc;
+            border-color: #d2e3fc;
+        }
+
         .result-area {
             width: 100%;
             margin-top: 8px;
@@ -256,16 +267,164 @@
             margin: 0 8px;
         }
 
-        /* 圖片樣式 */
+        /* 圖片樣式 — 直接顯示在結果中 */
         .result-image {
             margin: 8px 0 4px;
         }
         .result-image img {
             max-width: 100%;
-            max-height: 300px;
+            max-height: 400px;
             border-radius: 8px;
             border: 1px solid #e8eaed;
             box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            display: block;
+        }
+
+        /* ---------- IP 查詢器 Modal 樣式 ---------- */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(4px);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .modal-box {
+            background: #fff;
+            border-radius: 16px;
+            padding: 32px 28px;
+            max-width: 440px;
+            width: 90%;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            animation: modalFadeIn 0.25s ease;
+        }
+        @keyframes modalFadeIn {
+            from { opacity: 0; transform: scale(0.95); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        .modal-box h2 {
+            font-size: 20px;
+            font-weight: 500;
+            color: #202124;
+            margin-bottom: 6px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .modal-box .subtitle {
+            font-size: 13px;
+            color: #5f6368;
+            margin-bottom: 20px;
+        }
+
+        .modal-box .input-group {
+            margin-bottom: 14px;
+        }
+        .modal-box .input-group label {
+            display: block;
+            font-size: 13px;
+            font-weight: 500;
+            color: #3c4043;
+            margin-bottom: 4px;
+        }
+        .modal-box .input-group input {
+            width: 100%;
+            padding: 10px 14px;
+            border: 1px solid #dadce0;
+            border-radius: 8px;
+            font-size: 15px;
+            outline: none;
+            transition: border 0.2s;
+            font-family: Arial, sans-serif;
+        }
+        .modal-box .input-group input:focus {
+            border-color: #1a73e8;
+            box-shadow: 0 0 0 2px rgba(26, 115, 232, 0.2);
+        }
+
+        .modal-box .btn-row {
+            display: flex;
+            gap: 10px;
+            margin-top: 6px;
+            flex-wrap: wrap;
+        }
+        .modal-box .btn-row .btn {
+            flex: 1;
+            min-width: 80px;
+            justify-content: center;
+            height: 40px;
+            font-size: 14px;
+        }
+        .modal-box .btn-row .btn-close-modal {
+            background: #f1f3f4;
+            border-color: #f1f3f4;
+            color: #3c4043;
+        }
+        .modal-box .btn-row .btn-close-modal:hover {
+            background: #e8eaed;
+        }
+        .modal-box .btn-row .btn-primary-modal {
+            background: #1a73e8;
+            border-color: #1a73e8;
+            color: #fff;
+        }
+        .modal-box .btn-row .btn-primary-modal:hover {
+            background: #1557b0;
+            border-color: #1557b0;
+        }
+
+        .ip-result-box {
+            margin-top: 16px;
+            padding: 14px 16px;
+            border-radius: 8px;
+            background: #f8f9fa;
+            border-left: 4px solid #1a73e8;
+            font-size: 14px;
+            line-height: 1.7;
+            display: none;
+        }
+        .ip-result-box.show {
+            display: block;
+        }
+        .ip-result-box .ip-label {
+            font-weight: 600;
+            color: #202124;
+        }
+        .ip-result-box .ip-value {
+            color: #1a73e8;
+            font-weight: 500;
+        }
+        .ip-result-box .ip-detail {
+            color: #3c4043;
+            margin-top: 4px;
+            white-space: pre-line;
+        }
+        .ip-result-box.error {
+            border-left-color: #d93025;
+            background: #fce8e6;
+        }
+        .ip-result-box.error .ip-value {
+            color: #d93025;
+        }
+
+        .error-msg {
+            color: #d93025;
+            font-size: 13px;
+            margin-top: 4px;
+            display: none;
+        }
+        .error-msg.show {
+            display: block;
         }
 
         @media (max-width: 500px) {
@@ -284,7 +443,10 @@
                 font-size: 16px;
             }
             .result-image img {
-                max-height: 200px;
+                max-height: 250px;
+            }
+            .modal-box {
+                padding: 24px 18px;
             }
         }
 
@@ -365,6 +527,7 @@
 
         <div class="button-group">
             <button class="btn btn-primary" id="searchBtn">BOOBME 搜尋</button>
+            <button class="btn btn-ip" id="ipBtn">🔎 IP 查詢器</button>
         </div>
 
         <div class="result-area" id="resultArea">
@@ -386,104 +549,124 @@
         </div>
     </div>
 
+    <!-- ========== IP 查詢器 Modal ========== -->
+    <div class="modal-overlay" id="ipModal">
+        <div class="modal-box">
+            <h2>🔎 IP 位址查詢器</h2>
+            <div class="subtitle">⚠️ 一般民眾無權查詢 IP，需具備調查局警察資格。</div>
+
+            <div class="input-group">
+                <label for="ipPassword">請輸入驗證碼</label>
+                <input type="password" id="ipPassword" placeholder="請輸入調查局授權密碼" autocomplete="off">
+                <div class="error-msg" id="pwdError">❌ 驗證碼錯誤，請重新輸入。</div>
+            </div>
+
+            <div class="input-group" id="ipInputGroup" style="display:none;">
+                <label for="ipAddress">請輸入 IP 位址</label>
+                <input type="text" id="ipAddress" placeholder="例如：192.168.1.1" autocomplete="off">
+            </div>
+
+            <div class="btn-row">
+                <button class="btn btn-close-modal" id="modalCloseBtn">取消</button>
+                <button class="btn btn-primary-modal" id="modalAuthBtn">🔑 驗證</button>
+                <button class="btn btn-primary-modal" id="modalQueryBtn" style="display:none;">📡 查詢</button>
+            </div>
+
+            <div class="ip-result-box" id="ipResult">
+                <div class="ip-label">📍 查詢結果</div>
+                <div class="ip-value" id="ipResultValue"></div>
+                <div class="ip-detail" id="ipResultDetail"></div>
+            </div>
+        </div>
+    </div>
+
     <script>
         (function() {
-            // ---------- 資料庫 — 已將音頻改為圖片 ----------
+            // ============================================================
+            // 1. 原始 BOOBME 搜尋資料庫
+            // ============================================================
             const DATA = [
-                // 1. 影后 Victoria (洛知瑤) 維基百科
                 {
                     title: 'Victoria Luo 洛知瑤 — 維基百科',
                     link: 'boobme://wiki/victoria_luo',
                     snippet: '洛知瑤（Victoria Luo，1976年7月20日－），台灣知名演員、影后。2000年1月與全球十大富豪、Boobme創辦人顧瑞奇結婚，世紀婚禮轟動一時。同年誕下獨子顧承澤。以「國民媽媽」形象深植人心，主演多部家庭電影與連續劇。常年患有心臟病，曾在公開場合暈倒。',
                     detail: '洛知瑤（Victoria Luo，1976年7月20日－），台灣知名演員、影后。2000年1月與全球十大富豪、Boobme創辦人顧瑞奇結婚，世紀婚禮轟動一時。同年誕下獨子顧承澤。以「國民媽媽」形象深植人心，主演多部家庭電影與連續劇。她曾三度獲得金馬獎最佳女主角，並於2010年成立「知瑤慈善基金會」，長期關注兒童教育與弱勢家庭。常年患有心臟病，曾在公開場合暈倒，健康狀況備受關注。'
                 },
-                // 2. 顧承澤接班
                 {
                     title: '顧瑞奇獨子顧承澤成年禮 正式接掌Boobme副總',
                     link: 'boobme://news/chengze_succession',
                     snippet: '2018年10月30日，全球十大富豪顧瑞奇與影后Victoria（洛知瑤）之子顧承澤於成年禮上宣布接手父親企業，出任Boobme副總經理。顧承澤畢業於北一中，以市長獎及學生代表身分獲榮譽，近期入學台大醫工系，學霸形象備受矚目。',
                     detail: '2018年10月30日，全球十大富豪顧瑞奇與影后Victoria（洛知瑤）之子顧承澤於成年禮上宣布接手父親企業，出任Boobme副總經理。顧承澤畢業於北一中，以市長獎及學生代表身分獲榮譽，近期入學台大醫工系，學霸形象備受矚目。業界普遍認為，顧承澤的接班象徵Boobme將迎來年輕化與創新轉型。'
                 },
-                // 3. 顧承澤失蹤
                 {
                     title: 'Boobme副總顧承澤離奇失蹤！最後身影現身B市711',
                     link: 'boobme://news/chengze_missing',
                     snippet: '今日（2026年7月1日）接獲通報，Boobme副總經理顧承澤驚傳失蹤。警方表示，最後一次市區監視器拍到其身影是在B市某間711超商。目前家屬與公司皆焦急萬分，記者蘇予真報導。',
                     detail: '今日（2026年7月1日）接獲通報，Boobme副總經理顧承澤驚傳失蹤。警方表示，最後一次市區監視器拍到其身影是在B市某間711超商。目前家屬與公司皆焦急萬分，記者蘇予真報導。據了解，顧承澤失蹤前曾表示要前往公司處理緊急事務，卻在途中失聯，警方已成立專案小組展開調查。'
                 },
-                // 4. Close AI
                 {
                     title: 'Close AI 推出「chatbme」 掀起全球AI對話革命',
                     link: 'boobme://news/chatbme_launch',
                     snippet: '2022年11月30日，Close AI 團隊（Kevin、Eason、Jake等人）正式發表「chatbme」，一款基於大型語言模型的對話式AI，其能力與轟動程度堪比ChatGPT問世，迅速席捲全球，改變人機互動模式。',
                     detail: '2022年11月30日，Close AI 團隊（Kevin、Eason、Jake等人）正式發表「chatbme」，一款基於大型語言模型的對話式AI，其能力與轟動程度堪比ChatGPT問世，迅速席捲全球，改變人機互動模式。chatbme 支援多語言、程式碼生成與創意寫作，上線首月即突破1億用戶，被譽為「亞洲的AI奇蹟」。'
                 },
-                // 5. Oqen AI
                 {
                     title: 'Oqen AI 控訴 Close AI 竊取技術？ Close AI 反擊：無稽之談',
                     link: 'boobme://news/oqen_copycat',
                     snippet: '繼 Close AI 推出 chatbme 造成世界級轟動後，2022年12月25日，Oqen AI 公開聲稱其核心技術遭 Close AI 團隊竊取。但 Close AI 旋即出示研發日誌與專利證據，強力駁斥，證明 Oqen AI 指控為無稽之談。',
                     detail: '繼 Close AI 推出 chatbme 造成世界級轟動後，2022年12月25日，Oqen AI 公開聲稱其核心技術遭 Close AI 團隊竊取。但 Close AI 旋即出示研發日誌與專利證據，強力駁斥，證明 Oqen AI 指控為無稽之談。此事件引發科技圈熱議，專家認為 Oqen AI 恐是為了博取聲量而進行的商業操作。'
                 },
-                // 6. 陳志豪
                 {
                     title: '警員陳志豪憑體能優勢 破獲製毒工廠 起獲大批槍械',
                     link: 'boobme://news/chen_zhihao_bust',
                     snippet: '2026年6月6日，警員陳志豪憑藉過人體能與敏捷身手，在追緝過程中成功壓制多名毒販，破獲新型製毒工廠，起獲大批槍械彈藥。陳員為體育系出身，擅長長跑與格鬥，近期從Z市調回B市，加入江牧川警官帶領的第一刑事調查組。',
                     detail: '2026年6月6日，警員陳志豪憑藉過人體能與敏捷身手，在追緝過程中成功壓制多名毒販，破獲新型製毒工廠，起獲大批槍械彈藥。陳員為體育系出身，擅長長跑與格鬥，近期從Z市調回B市，加入江牧川警官帶領的第一刑事調查組。此次行動中，陳志豪以驚人的爆發力率先衝入工廠，並以矯健的身手制伏企圖逃逸的主嫌，展現其體育長才在實務上的價值。'
                 },
-                // 7. 酒醉男子
                 {
                     title: '酒醉男子大鬧派出所 辱罵警員遭拘留3天',
                     link: 'boobme://news/drunk_man',
                     snippet: '2012年8月15日，吳姓男子醉倒在派出所前，警員上前詢問時，吳男口出惡言辱罵警員並揮拳相向，隨即遭警方壓制，依妨害公務等罪嫌拘留3天。',
                     detail: '2012年8月15日，吳姓男子醉倒在派出所前，警員上前詢問時，吳男口出惡言辱罵警員並揮拳相向，隨即遭警方壓制，依妨害公務等罪嫌拘留3天。此事件當時引發社會對酒後脫序行為的關注，警方也呼籲民眾理性飲酒。'
                 },
-                // 8. 江牧川
                 {
                     title: '江牧川警官率第一刑事調查組 屢破奇案 從降職到晉升',
                     link: 'boobme://news/jiang_muchuan',
                     snippet: '2025年4月29日，江牧川警官帶領的第一刑事調查組再破重大案件。回顧1年前，江牧川因意外放跑通緝犯從A市降職至B市，但後續憑藉多次亮眼表現將功補罪，晉升警官，其率領的小組更成為B市第一刑事調查組，屢建奇功。',
                     detail: '2025年4月29日，江牧川警官帶領的第一刑事調查組再破重大案件。回顧1年前，江牧川因意外放跑通緝犯從A市降職至B市，但後續憑藉多次亮眼表現將功補罪，晉升警官，其率領的小組更成為B市第一刑事調查組，屢建奇功。江牧川以縝密的推理和科技辦案聞名，被譽為「B市福爾摩斯」。'
                 },
-                // 9. ten little indians — 改為圖片
+                // ten little indians — 使用本機圖片
                 {
                     title: 'ten little indians',
                     link: 'boobme://image/ten_little_indians',
-                    snippet: '經典童謠「Ten Little Indians」插圖。',
-                    detail: '經典童謠「Ten Little Indians」插圖。',
-                    hasImage: true,
-                    imageSrc: 'https://ibb.co/Hw8m2CH'
+                    snippet: 'Ten Little Indians 歌詞。',
+                    detail: '<img src="images/ten-little-indians.jpg" style="width:100%; max-width:700px; border-radius:12px;">',
+                    hasImage: false,
+                    imageSrc: ''
                 },
-                // 10. 依托咪酯
                 {
                     title: '實測依托咪酯 記者蘇予真採訪臺大化工系教授 發現會導致慢性中毒',
                     link: 'boobme://news/etomidate_test',
                     snippet: '記者蘇予真採訪臺大化工系教授，並與實驗室學生合作測試依托咪酯，發現其會導致慢性中毒，對人體神經系統造成不可逆損傷。',
                     detail: '記者蘇予真採訪臺大化工系教授，並與實驗室學生合作測試依托咪酯，發現其會導致慢性中毒，對人體神經系統造成不可逆損傷。研究團隊呼籲政府應加強管制，避免該物質被濫用於娛樂用途。'
                 },
-                // 11. 一噴即暈
                 {
                     title: '無色無味噴霧 號稱一噴即暈 專家呼籲提高警覺',
                     link: 'boobme://news/spray_knockout',
                     snippet: '近日流傳一種無色無味的噴霧，號稱噴灑後能使人瞬間昏迷。專家呼籲民眾提高警覺，避免成為犯罪工具。',
                     detail: '近日流傳一種無色無味的噴霧，號稱噴灑後能使人瞬間昏迷。專家呼籲民眾提高警覺，避免成為犯罪工具。警方已介入調查該噴霧的來源與成分。'
                 },
-                // 12. 北一中學生
                 {
                     title: '國家棟梁 北一中學生服用過量安眠藥致死 老師：很好的孩子',
                     link: 'boobme://news/beiyi_student_death',
                     snippet: '2016年7月18日，北一中吳姓女同學在校園內被發現失去呼吸，身邊散落安眠藥及空瓶，搶救後不治。班導林雨棠老師說她非常關心同學，只是比較不會透露自己的事，家庭困難。父親吳金發說女兒患有憂鬱症，多次說想自殺。同學悲痛表示她長年被酗酒賭博的爸爸家暴。',
                     detail: '2016年7月18日，北一中吳姓女同學在校園內被發現失去呼吸，身邊散落安眠藥及空瓶，搶救後不治。班導林雨棠老師說她非常關心同學，只是比較不會透露自己的事，家庭困難。父親吳金發說女兒患有憂鬱症，多次說想自殺。同學悲痛表示她長年被酗酒賭博的爸爸家暴，可能因此撐不下去才選擇結束生命。'
                 },
-                // 13. 微電影
                 {
                     title: '恭賀B市藝術大學畢業微電影《奇跡女孩》獲全國第一名',
                     link: 'boobme://news/miracle_girl',
                     snippet: '由B市藝術大學畢業生洛知瑤與林雨棠主演的雙女主微電影《奇跡女孩 Wonder》，榮獲全國微電影競賽第一名。內容講述面部畸形小女孩入學後，面對異樣眼光、言語嘲弄到最終建立友誼的溫馨過程。',
                     detail: '由B市藝術大學畢業生洛知瑤與林雨棠主演的雙女主微電影《奇跡女孩 Wonder》，榮獲全國微電影競賽第一名。內容講述面部畸形小女孩入學後，面對異樣眼光、言語嘲弄到最終建立友誼的溫馨過程。評審盛讚其情感真摯，演技動人。'
                 },
-                // 14. Renee's blog
                 {
                     title: 'Renee\'s blog — 蘇予真 個人部落格',
                     link: 'boobme://blog/renee_su',
@@ -504,6 +687,9 @@
                 }
             ];
 
+            // ============================================================
+            // 2. BOOBME 搜尋引擎邏輯
+            // ============================================================
             const searchInput = document.getElementById('searchInput');
             const searchBtn = document.getElementById('searchBtn');
             const resultList = document.getElementById('resultList');
@@ -670,6 +856,113 @@
             });
 
             renderResults('');
+
+            // ============================================================
+            // 3. IP 查詢器邏輯
+            // ============================================================
+            const ipModal = document.getElementById('ipModal');
+            const ipBtn = document.getElementById('ipBtn');
+            const modalCloseBtn = document.getElementById('modalCloseBtn');
+            const modalAuthBtn = document.getElementById('modalAuthBtn');
+            const modalQueryBtn = document.getElementById('modalQueryBtn');
+            const ipPassword = document.getElementById('ipPassword');
+            const ipAddress = document.getElementById('ipAddress');
+            const ipInputGroup = document.getElementById('ipInputGroup');
+            const pwdError = document.getElementById('pwdError');
+            const ipResult = document.getElementById('ipResult');
+            const ipResultValue = document.getElementById('ipResultValue');
+            const ipResultDetail = document.getElementById('ipResultDetail');
+
+            const CORRECT_PASSWORD = '1234';
+
+            ipBtn.addEventListener('click', () => {
+                ipModal.classList.add('active');
+                ipPassword.value = '';
+                ipAddress.value = '';
+                ipInputGroup.style.display = 'none';
+                modalAuthBtn.style.display = 'inline-block';
+                modalQueryBtn.style.display = 'none';
+                pwdError.classList.remove('show');
+                ipResult.classList.remove('show', 'error');
+                ipResultValue.textContent = '';
+                ipResultDetail.textContent = '';
+                ipPassword.focus();
+            });
+
+            function closeModal() {
+                ipModal.classList.remove('active');
+            }
+            modalCloseBtn.addEventListener('click', closeModal);
+            ipModal.addEventListener('click', (e) => {
+                if (e.target === ipModal) closeModal();
+            });
+
+            modalAuthBtn.addEventListener('click', () => {
+                const pwd = ipPassword.value.trim();
+                if (pwd === CORRECT_PASSWORD) {
+                    pwdError.classList.remove('show');
+                    ipInputGroup.style.display = 'block';
+                    modalAuthBtn.style.display = 'none';
+                    modalQueryBtn.style.display = 'inline-block';
+                    ipAddress.focus();
+                    ipResult.classList.remove('show', 'error');
+                } else {
+                    pwdError.classList.add('show');
+                    ipPassword.value = '';
+                    ipPassword.focus();
+                }
+            });
+
+            ipPassword.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    modalAuthBtn.click();
+                }
+            });
+
+            modalQueryBtn.addEventListener('click', () => {
+                const ip = ipAddress.value.trim();
+                if (!ip) {
+                    ipResult.classList.add('show', 'error');
+                    ipResultValue.textContent = '⚠️ 請輸入 IP 位址';
+                    ipResultDetail.textContent = '';
+                    return;
+                }
+
+                const ipRegex = /^(\d{1,3}\.){3}\d{1,3}$/;
+                if (!ipRegex.test(ip)) {
+                    ipResult.classList.add('show', 'error');
+                    ipResultValue.textContent = '❌ 無效的 IP 格式';
+                    ipResultDetail.textContent = '請輸入正確的 IPv4 位址（例如：192.168.1.1）';
+                    return;
+                }
+
+                let resultText = '';
+                let detailText = '';
+
+                if (ip === '192.168.1.1') {
+                    resultText = '🏛️ B市警察局';
+                    detailText = '📍 歸屬單位：B市警察局資訊中心\n🔒 加密連線：已啟用\n📅 最後活動：2026-06-28 14:32';
+                } else {
+                    resultText = '🏠 不重要的B市市民';
+                    detailText = '📍 歸屬單位：B市一般民用網路\n🔒 加密連線：未啟用\n📅 最後活動：2026-06-27 09:15';
+                }
+
+                ipResult.classList.remove('error');
+                ipResult.classList.add('show');
+                ipResultValue.textContent = resultText;
+                ipResultDetail.textContent = detailText;
+            });
+
+            ipAddress.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    if (modalQueryBtn.style.display !== 'none') {
+                        modalQueryBtn.click();
+                    }
+                }
+            });
+
         })();
     </script>
 </body>
