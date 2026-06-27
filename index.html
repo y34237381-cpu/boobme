@@ -111,8 +111,6 @@
             font-weight: 400;
         }
 
-        /* 麥克風已移除 */
-
         .button-group {
             display: flex;
             flex-wrap: wrap;
@@ -258,13 +256,16 @@
             margin: 0 8px;
         }
 
-        .audio-player {
-            margin: 6px 0 2px;
+        /* 圖片樣式 */
+        .result-image {
+            margin: 8px 0 4px;
         }
-        .audio-player audio {
-            width: 100%;
-            max-width: 300px;
-            height: 32px;
+        .result-image img {
+            max-width: 100%;
+            max-height: 300px;
+            border-radius: 8px;
+            border: 1px solid #e8eaed;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
         }
 
         @media (max-width: 500px) {
@@ -281,6 +282,9 @@
             }
             .result-title {
                 font-size: 16px;
+            }
+            .result-image img {
+                max-height: 200px;
             }
         }
 
@@ -357,7 +361,6 @@
         <div class="search-box" id="searchBox">
             <span class="search-icon">🔍</span>
             <input type="text" id="searchInput" placeholder="在 BOOBME 搜尋..." autocomplete="off">
-            <!-- 麥克風已移除 -->
         </div>
 
         <div class="button-group">
@@ -385,7 +388,7 @@
 
     <script>
         (function() {
-            // ---------- 資料庫 — 已移除標題中的指定文字 ----------
+            // ---------- 資料庫 — 已將音頻改為圖片 ----------
             const DATA = [
                 // 1. 影后 Victoria (洛知瑤) 維基百科
                 {
@@ -443,14 +446,14 @@
                     snippet: '2025年4月29日，江牧川警官帶領的第一刑事調查組再破重大案件。回顧1年前，江牧川因意外放跑通緝犯從A市降職至B市，但後續憑藉多次亮眼表現將功補罪，晉升警官，其率領的小組更成為B市第一刑事調查組，屢建奇功。',
                     detail: '2025年4月29日，江牧川警官帶領的第一刑事調查組再破重大案件。回顧1年前，江牧川因意外放跑通緝犯從A市降職至B市，但後續憑藉多次亮眼表現將功補罪，晉升警官，其率領的小組更成為B市第一刑事調查組，屢建奇功。江牧川以縝密的推理和科技辦案聞名，被譽為「B市福爾摩斯」。'
                 },
-                // 9. ten little indians
+                // 9. ten little indians — 改為圖片
                 {
                     title: 'ten little indians',
-                    link: 'boobme://audio/ten_little_indians',
-                    snippet: '經典童謠「Ten Little Indians」音頻播放。',
-                    detail: '經典童謠「Ten Little Indians」音頻播放。',
-                    hasAudio: true,
-                    audioSrc: 'https://www.soundjay.com/misc/sounds/bell-ringing-05.mp3'
+                    link: 'boobme://image/ten_little_indians',
+                    snippet: '經典童謠「Ten Little Indians」插圖。',
+                    detail: '經典童謠「Ten Little Indians」插圖。',
+                    hasImage: true,
+                    imageSrc: 'https://ibb.co/Hw8m2CH'
                 },
                 // 10. 依托咪酯
                 {
@@ -459,7 +462,7 @@
                     snippet: '記者蘇予真採訪臺大化工系教授，並與實驗室學生合作測試依托咪酯，發現其會導致慢性中毒，對人體神經系統造成不可逆損傷。',
                     detail: '記者蘇予真採訪臺大化工系教授，並與實驗室學生合作測試依托咪酯，發現其會導致慢性中毒，對人體神經系統造成不可逆損傷。研究團隊呼籲政府應加強管制，避免該物質被濫用於娛樂用途。'
                 },
-                // 11. 一噴即暈 — 已移除「號稱一噴即暈」
+                // 11. 一噴即暈
                 {
                     title: '無色無味噴霧 號稱一噴即暈 專家呼籲提高警覺',
                     link: 'boobme://news/spray_knockout',
@@ -480,7 +483,7 @@
                     snippet: '由B市藝術大學畢業生洛知瑤與林雨棠主演的雙女主微電影《奇跡女孩 Wonder》，榮獲全國微電影競賽第一名。內容講述面部畸形小女孩入學後，面對異樣眼光、言語嘲弄到最終建立友誼的溫馨過程。',
                     detail: '由B市藝術大學畢業生洛知瑤與林雨棠主演的雙女主微電影《奇跡女孩 Wonder》，榮獲全國微電影競賽第一名。內容講述面部畸形小女孩入學後，面對異樣眼光、言語嘲弄到最終建立友誼的溫馨過程。評審盛讚其情感真摯，演技動人。'
                 },
-                // 14. Renee's blog — 已移除「(蘇予真部落格)」
+                // 14. Renee's blog
                 {
                     title: 'Renee\'s blog — 蘇予真 個人部落格',
                     link: 'boobme://blog/renee_su',
@@ -539,17 +542,14 @@
                     }
 
                     const detailEncoded = encodeURIComponent(item.detail);
-                    const hasAudio = item.hasAudio || false;
-                    const audioSrc = item.audioSrc || '';
+                    const hasImage = item.hasImage || false;
+                    const imageSrc = item.imageSrc || '';
 
-                    let audioHtml = '';
-                    if (hasAudio && audioSrc) {
-                        audioHtml = `
-                            <div class="audio-player">
-                                <audio controls>
-                                    <source src="${audioSrc}" type="audio/mpeg">
-                                    您的瀏覽器不支援音頻播放。
-                                </audio>
+                    let imageHtml = '';
+                    if (hasImage && imageSrc) {
+                        imageHtml = `
+                            <div class="result-image">
+                                <img src="${imageSrc}" alt="${item.title}" loading="lazy">
                             </div>
                         `;
                     }
@@ -559,7 +559,7 @@
                             <div class="result-title"><a href="#" data-detail="${detailEncoded}" data-title="${item.title}" class="result-link-click">${titleDisplay}</a></div>
                             <div class="result-link">${item.link}</div>
                             <div class="result-snippet">${snippetDisplay}</div>
-                            ${audioHtml}
+                            ${imageHtml}
                         </div>
                     `;
                 });
