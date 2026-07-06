@@ -553,17 +553,17 @@
     <div class="modal-overlay" id="ipModal">
         <div class="modal-box">
             <h2>🔎 IP 位址查詢器</h2>
-            <div class="subtitle">⚠️ 一般民眾無權查詢 IP，需具備調查局警察資格。</div>
+            <div class="subtitle">⚠️ 一般民眾無權查詢 IP，需具備犯罪偵察組警察資格。</div>
 
             <div class="input-group">
                 <label for="ipPassword">請輸入驗證碼</label>
-                <input type="password" id="ipPassword" placeholder="請輸入調查局授權密碼" autocomplete="off">
+                <input type="password" id="ipPassword" placeholder="請輸入犯罪偵察組警察授權密碼" autocomplete="off">
                 <div class="error-msg" id="pwdError">❌ 驗證碼錯誤，請重新輸入。</div>
             </div>
 
             <div class="input-group" id="ipInputGroup" style="display:none;">
                 <label for="ipAddress">請輸入 IP 位址</label>
-                <input type="text" id="ipAddress" placeholder="例如：192.168.1.1" autocomplete="off">
+                <input type="text" id="ipAddress" placeholder="請輸入 IP 位址" autocomplete="off">
             </div>
 
             <div class="btn-row">
@@ -634,20 +634,21 @@
                     snippet: '2025年4月29日，江牧川警官帶領的第一刑事調查組再破重大案件。回顧1年前，江牧川因意外放跑通緝犯從A市降職至B市，但後續憑藉多次亮眼表現將功補罪，晉升警官，其率領的小組更成為B市第一刑事調查組，屢建奇功。',
                     detail: '2025年4月29日，江牧川警官帶領的第一刑事調查組再破重大案件。回顧1年前，江牧川因意外放跑通緝犯從A市降職至B市，但後續憑藉多次亮眼表現將功補罪，晉升警官，其率領的小組更成為B市第一刑事調查組，屢建奇功。江牧川以縝密的推理和科技辦案聞名，被譽為「B市福爾摩斯」。'
                 },
-                // ten little indians — 使用本機圖片
+                // ten little indians
                 {
                     title: 'ten little indians',
                     link: 'boobme://image/ten_little_indians',
                     snippet: 'Ten Little Indians 歌詞。',
-                    detail: '<img src="images/ten-little-indians.jpg" style="width:100%; max-width:700px; border-radius:12px;">',
+                    detail: '<img src="images/ten-little-indians.jpg" style="width:100%; max-width:700px; border-radius:12px; display:block; margin:0 auto;">',
                     hasImage: false,
                     imageSrc: ''
                 },
+                // 幻覺菇 — 取代原本的依托咪酯
                 {
-                    title: '實測依托咪酯 記者蘇予真採訪臺大化工系教授 發現會導致慢性中毒',
-                    link: 'boobme://news/etomidate_test',
-                    snippet: '記者蘇予真採訪臺大化工系教授，並與實驗室學生合作測試依托咪酯，發現其會導致慢性中毒，對人體神經系統造成不可逆損傷。',
-                    detail: '記者蘇予真採訪臺大化工系教授，並與實驗室學生合作測試依托咪酯，發現其會導致慢性中毒，對人體神經系統造成不可逆損傷。研究團隊呼籲政府應加強管制，避免該物質被濫用於娛樂用途。'
+                    title: '幻覺菇 屬於慢性中毒致幻管制級物品 記者蘇予真採訪臺大化工系教授',
+                    link: 'boobme://news/hallucinogenic_mushroom',
+                    snippet: '記者蘇予真採訪臺大化工系教授，發現「幻覺菇」屬於慢性中毒致幻的管制級物品。若吸食14天以上，會產生頭暈目眩、產生幻覺的現象，對人體神經系統造成不可逆損傷。',
+                    detail: '記者蘇予真採訪臺大化工系教授，發現「幻覺菇」屬於慢性中毒致幻的管制級物品。若吸食14天以上，會產生頭暈目眩、產生幻覺的現象，對人體神經系統造成不可逆損傷。研究團隊呼籲政府應加強管制，避免該物質流入市面。'
                 },
                 {
                     title: '無色無味噴霧 號稱一噴即暈 專家呼籲提高警覺',
@@ -858,7 +859,7 @@
             renderResults('');
 
             // ============================================================
-            // 3. IP 查詢器邏輯
+            // 3. IP 查詢器邏輯 — 密碼改為 5710
             // ============================================================
             const ipModal = document.getElementById('ipModal');
             const ipBtn = document.getElementById('ipBtn');
@@ -873,7 +874,8 @@
             const ipResultValue = document.getElementById('ipResultValue');
             const ipResultDetail = document.getElementById('ipResultDetail');
 
-            const CORRECT_PASSWORD = '1234';
+            // 密碼改為 5710
+            const CORRECT_PASSWORD = '5710';
 
             ipBtn.addEventListener('click', () => {
                 ipModal.classList.add('active');
@@ -933,7 +935,7 @@
                 if (!ipRegex.test(ip)) {
                     ipResult.classList.add('show', 'error');
                     ipResultValue.textContent = '❌ 無效的 IP 格式';
-                    ipResultDetail.textContent = '請輸入正確的 IPv4 位址（例如：192.168.1.1）';
+                    ipResultDetail.textContent = '請輸入正確的 IPv4 位址';
                     return;
                 }
 
