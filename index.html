@@ -1960,9 +1960,6 @@
         // ============================================================
 
         function showLightChoice() {
-            const clothName = state.clothType || '布';
-            const hasCloth = state.hasCloth;
-
             showModal(`
                 <h3>發電機啟動了</h3>
                 <p>你面前有兩個選擇：</p>
@@ -2000,79 +1997,6 @@
                 state.totalTimerInterval = null;
                 state.totalTimerRunning = false;
             }
-            const oldTimer = document.getElementById('totalTimerDisplay');
-            if (oldTimer) oldTimer.remove();
-
-            if (choice === 'light') {
-                if (state.hasCloth) {
-                    showModal(`
-                        <h3>燈亮了！</h3>
-                        <p>第二人格哈爾沃森提著刀衝進來！</p>
-                        <p>你抓起<span style="color:#f0e4c0;font-weight:600;">${state.clothType}</span>朝他蓋過去！</p>
-                        <p>他被布料纏住，動彈不得。</p>
-                        <p style="color:#f0e4c0;">由於突然變黑，主人格Eric趁著這個空檔短暫奪回身體控制權，對你大喊：</p>
-                        <p style="font-weight:600;font-size:18px;color:#f0a070;">「快跑！去大門！他鎖住了！需要密碼！」</p>
-                        <div class="btn-group"><button class="btn btn-yes" onclick="closeModal();goToDoor()">衝向大門！</button></div>
-                    `);
-                } else {
-                    showEnding('bad', '你伸手去抓——什麼都沒有。他舉起刀……你修長的雙腿被奪走了。');
-                }
-            } else {
-                showModal(`
-                    <h3>黑暗之中</h3>
-                    <p>門被輕輕推開，一個顫抖的聲音說：</p>
-                    <p style="font-weight:600;font-size:18px;color:#f0e4c0;">「快……我帶你出去。」</p>
-                    <p>主人格Eric出現了。他拉著你往大門跑去。</p>
-                    <p>但到了門口，他臉色一變——</p>
-                    <p style="color:#f0a070;">「該死……他把門鎖換了。需要密碼才能出去。快輸入！」</p>
-                    <div class="btn-group"><button class="btn btn-yes" onclick="closeModal();goToDoor()">輸入密碼</button></div>
-                `);
-            }
-        }
-
-            if (state.totalTimerInterval) {
-                clearInterval(state.totalTimerInterval);
-                state.totalTimerInterval = null;
-                state.totalTimerRunning = false;
-            }
-            const oldTimer = document.getElementById('totalTimerDisplay');
-            if (oldTimer) oldTimer.remove();
-
-            if (choice === 'light') {
-                if (state.hasCloth) {
-                    showModal(`
-                        <h3>燈亮了！</h3>
-                        <p>第二人格哈爾沃森提著刀衝進來！</p>
-                        <p>你抓起<span style="color:#f0e4c0;font-weight:600;">${state.clothType}</span>朝他蓋過去！</p>
-                        <p>他被布料纏住，動彈不得。</p>
-                        <p style="color:#f0e4c0;">由於突然變黑，主人格Eric趁著這個空檔短暫奪回身體控制權，對你大喊：</p>
-                        <p style="font-weight:600;font-size:18px;color:#f0a070;">「快跑！去大門！他鎖住了！需要密碼！」</p>
-                        <div class="btn-group"><button class="btn btn-yes" onclick="closeModal();goToDoor()">衝向大門！</button></div>
-                    `);
-                } else {
-                    showEnding('bad', '你伸手去抓——什麼都沒有。他舉起刀……你修長的雙腿被奪走了。');
-                }
-            } else {
-                showModal(`
-                    <h3>黑暗之中</h3>
-                    <p>門被輕輕推開，一個顫抖的聲音說：</p>
-                    <p style="font-weight:600;font-size:18px;color:#f0e4c0;">「快……我帶你出去。」</p>
-                    <p>主人格Eric出現了。他拉著你往大門跑去。</p>
-                    <p>但到了門口，他臉色一變——</p>
-                    <p style="color:#f0a070;">「該死……他把門鎖換了。需要密碼才能出去。快輸入！」</p>
-                    <div class="btn-group"><button class="btn btn-yes" onclick="closeModal();goToDoor()">輸入密碼</button></div>
-                `);
-            }
-        }
-            closeModal();
-            state.finalChoice = choice;
-
-            if (state.totalTimerInterval) {
-                clearInterval(state.totalTimerInterval);
-                state.totalTimerInterval = null;
-                state.totalTimerRunning = false;
-            }
-            // 移除總計時器顯示
             const oldTimer = document.getElementById('totalTimerDisplay');
             if (oldTimer) oldTimer.remove();
 
@@ -2162,6 +2086,21 @@
             timerEl.textContent = '10:00';
             gameScene.appendChild(timerEl);
 
+            // 如果有鈴鐺，時間縮短為 6 分鐘
+            if (state.hasBell) {
+                const warnEl = document.createElement('div');
+                warnEl.className = 'bell-warning';
+                warnEl.style.cssText = 'position:absolute;bottom:15%;left:50%;transform:translateX(-50%);z-index:10;';
+                warnEl.innerHTML = `
+                    <span class="bell-icon">🔔</span>
+                    <span class="bell-text">鈴鐺聲暴露了你的位置並且驚動了第二人格！時間縮短為 6 分鐘！</span>
+                `;
+                gameScene.appendChild(warnEl);
+                state.timer = 360;
+                timerEl.textContent = '6:00';
+            } else {
+                state.timer = 600;
+            }
             startDoorTimer();
 
             let doorInput = [];
@@ -2226,22 +2165,6 @@
                     }
                 };
                 numpadEl.appendChild(btnConfirm);
-            }
-
-            if (state.hasBell) {
-                const warnEl = document.createElement('div');
-                warnEl.className = 'bell-warning';
-                warnEl.style.cssText = 'position:absolute;bottom:15%;left:50%;transform:translateX(-50%);z-index:10;';
-                warnEl.innerHTML = `
-                    <span class="bell-icon">🔔</span>
-                    <span class="bell-text">鈴鐺聲暴露了你的位置並且驚動了第二人格！時間縮短為 6 分鐘！</span>
-                `;
-                gameScene.appendChild(warnEl);
-                clearInterval(state.timerInterval);
-                state.timer = 360;
-                const timerEl2 = document.getElementById('doorTimer');
-                if (timerEl2) timerEl2.textContent = '6:00';
-                startDoorTimer();
             }
 
             const backBtn = document.createElement('div');
@@ -2316,24 +2239,6 @@
                 `);
             }
             renderPage();
-        }
-
-        // ============================================================
-        //  大門密碼提示
-        // ============================================================
-
-        function showDoorHint() {
-            showModal(`
-                <h3>大門密碼提示</h3>
-                <p style="font-size:18px;text-align:center;color:#f0e4c0;">
-                    主人出生年份的最後兩位數
-                </p>
-                <p style="font-size:32px;text-align:center;font-weight:700;color:#f5edd6;margin:8px 0;">
-                    29
-                </p>
-                <p style="font-size:13px;color:#8a8078;text-align:center;">記住這個數字，前往大門時需要輸入。</p>
-                <div class="btn-group"><button class="btn btn-yes" onclick="closeModal()">記住了</button></div>
-            `);
         }
 
         // ============================================================
