@@ -210,6 +210,24 @@
             overflow: hidden;
         }
 
+        /* ===== 手電筒遮罩 ===== */
+        #lightMask {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 3;
+            background: radial-gradient(circle at var(--mouse-x, 50%) var(--mouse-y, 50%), 
+                transparent 0%, 
+                transparent 100px, 
+                rgba(0,0,0,0.7) 180px, 
+                rgba(0,0,0,0.92) 280px, 
+                rgba(0,0,0,0.97) 100%
+            );
+            transition: background 0.08s ease;
+        }
+
         /* ===== 可點擊物件 ===== */
         .clickable {
             position: absolute;
@@ -707,7 +725,9 @@
 
     <!-- ===== 遊戲畫面 ===== -->
     <div id="game" class="screen">
-        <div class="game-scene" id="gameScene"></div>
+        <div class="game-scene" id="gameScene">
+            <div id="lightMask"></div>
+        </div>
     </div>
 
     <!-- ===== 彈窗 ===== -->
@@ -916,6 +936,44 @@
             showOpeningStory(charId);
         }
 
+        // 手電筒追蹤滑鼠
+        function initLightMask() {
+            const gameScene = document.getElementById('gameScene');
+            const lightMask = document.getElementById('lightMask');
+            
+            if (!gameScene || !lightMask) return;
+            
+            // 如果場景是浴室，不啟動手電筒
+            if (state.scene === 'Elias') {
+                lightMask.style.display = 'none';
+                return;
+            }
+            
+            // 如果是艾利亞斯的客廳且還沒有蠟燭，不啟動手電筒
+            if (state.scene === 'EliasLiving' && !state.hasCandle) {
+                lightMask.style.display = 'block';
+                lightMask.style.background = 'rgba(0,0,0,0.95)';
+                return;
+            }
+            
+            // 其他情況：正常手電筒
+            lightMask.style.display = 'block';
+            lightMask.style.background = ''; // 重置為 CSS 樣式
+            
+            gameScene.removeEventListener('mousemove', lightMask._handler);
+            
+            const handler = function(e) {
+                const rect = gameScene.getBoundingClientRect();
+                const x = ((e.clientX - rect.left) / rect.width) * 100;
+                const y = ((e.clientY - rect.top) / rect.height) * 100;
+                lightMask.style.setProperty('--mouse-x', x + '%');
+                lightMask.style.setProperty('--mouse-y', y + '%');
+            };
+            
+            lightMask._handler = handler;
+            gameScene.addEventListener('mousemove', handler);
+        }
+
         function getSceneConfig(sceneKey) {
             return ROOM_CONFIG[sceneKey] || null;
         }
@@ -964,6 +1022,7 @@
 
         function startExploration() {
             renderScene();
+            initLightMask();
         }
 
         // ============================================================
@@ -995,9 +1054,18 @@
                 el.dataset.action = item.action;
                 el.innerHTML = `<span class="clickable-label">${item.label}</span>`;
                 el.onclick = () => handleClick(item.action);
+
+                // ===== 艾利亞斯客廳拿到蠟燭前，只顯示紙條和櫃子 =====
+                if (state.scene === 'EliasLiving' && !state.hasCandle) {
+                    // 紙條（hint_paper）和櫃子（cabinet）顯示，其他全部隱藏
+                    if (item.action !== 'hint_paper' && item.action !== 'cabinet') {
+                        el.style.display = 'none';
+                    }
+                }
+                // ===== 結束 =====
+
                 gameScene.appendChild(el);
             });
-
             // 返回按鈕
             const backBtn = document.createElement('div');
             backBtn.className = 'scene-nav';
@@ -1023,6 +1091,47 @@
                 }
             };
             gameScene.appendChild(backBtn);
+
+            // ============================================================
+            //  手電筒遮罩控制（根據場景）
+            // ============================================================
+            const lightMask = document.getElementById('lightMask');
+            const sceneKey = state.scene;
+
+            // 如果 lightMask 不存在，直接跳過
+            if (!lightMask) return;
+
+            // === 浴室（原本就是亮的）：沒有遮罩 ===
+            if (sceneKey === 'Elias') {
+                lightMask.style.display = 'none';
+                gameScene.removeEventListener('mousemove', lightMask._handler);
+            }
+            // === 艾利亞斯的客廳 ===
+            else if (sceneKey === 'EliasLiving') {
+                if (state.hasCandle) {
+                    // 拿到蠟燭後：顯示手電筒
+                    lightMask.style.display = 'block';
+                    lightMask.style.background = ''; // 重置為 CSS 預設
+                    initLightMask();
+                } else {
+                    // 還沒拿到蠟燭：全黑，無手電筒
+                    lightMask.style.display = 'block';
+                    lightMask.style.background = 'rgba(0,0,0,0.95)';
+                    gameScene.removeEventListener('mousemove', lightMask._handler);
+                }
+            }
+            // === 大門場景 ===
+            else if (sceneKey === 'door') {
+                lightMask.style.display = 'block';
+                lightMask.style.background = '';
+                initLightMask();
+            }
+            // === 其他場景（艾絲特房間、廚房、地下室）：有手電筒 ===
+            else {
+                lightMask.style.display = 'block';
+                lightMask.style.background = ''; // 重置為 CSS 預設
+                initLightMask();
+            }
         }
 
         // ============================================================
@@ -1184,7 +1293,18 @@
                     setTimeout(() => {
                         initPasswordLock('cabinetLock', 'cabinetNumpad', state.cabinetPassword, () => {
                             state.cabinetUnlocked = true;
+                            state.hasCandle = true;
                             closeModal();
+
+                            const lightMask = document.getElementById('lightMask');
+                            if (lightMask) {
+                                lightMask.style.display = 'block';
+                                lightMask.style.background = '';
+                                initLightMask();
+                            }
+
+                            renderScene();
+
                             showModal(`
                                 <h3>櫃子打開了</h3>
                                 <p>裡面放著一根蠟燭和一盒火柴。</p>
