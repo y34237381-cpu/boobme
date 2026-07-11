@@ -161,12 +161,10 @@
         .char-card img {
             width: 140px;
             height: 140px;
-            object-fit: cover;
+            object-fit: contain;
             border-radius: 50%;
-            border: 2px solid rgba(180, 160, 130, 0.2);
-            margin-bottom: 12px;
-            background: #1a1a22;
-        }
+            /* ... */
+        }   
 
         .char-name {
             font-family: 'Cinzel', serif;
@@ -956,7 +954,7 @@
             const fullStory = commonIntro + (charSpecific[charId] || '');
 
             showModal(`
-                <h3>📖 開場故事</h3>
+                <h3>前情提要</h3>
                 <p style="white-space:pre-wrap;font-size:15px;line-height:1.9;text-align:left;color:#d4c9a8;">${fullStory}</p>
                 <div class="btn-group"><button class="btn btn-yes" onclick="closeModal();startExploration()">開始探索</button></div>
             `);
