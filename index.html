@@ -870,7 +870,7 @@
             finalChoice: null,
             hasCloth: false,
             wardrobeUnlocked: false,
-            totalTimer: 1200,  // 20分鐘 = 1200秒
+            totalTimer: 1800,  // 30分鐘 = 1800秒
             totalTimerRunning: false,
             totalTimerInterval: null,
             clothType: '',
@@ -961,8 +961,8 @@
             renderScene();
             showOpeningStory(charId);
             
-            // ===== 啟動總計時器（20分鐘） =====
-            state.totalTimer = 1200;
+            // ===== 啟動總計時器（30分鐘） =====
+            state.totalTimer = 1800;
             state.totalTimerRunning = true;
             if (state.totalTimerInterval) clearInterval(state.totalTimerInterval);
             state.totalTimerInterval = setInterval(function() {
@@ -1011,7 +1011,7 @@
             timerEl.textContent = `⏱ ${timeStr}`;
             
             // 時間少於5分鐘時變色警告
-            if (state.totalTimer <= 300) {
+            if (state.totalTimer <= 600) {
                 timerEl.style.color = '#f0a070';
                 timerEl.style.animation = 'timerPulse 0.8s ease-in-out infinite';
             }
@@ -1980,7 +1980,7 @@
                     <h3>鈴鐺聲</h3>
                     <p>你身上的鈴鐺發出了清脆的聲響...</p>
                     <p style="color:#f0a070;">對聲音極度敏感的第二人格哈爾沃森，正在快速醒來！</p>
-                    <p>你必須在 <span style="color:#f0e4c0;font-weight:600;">6 分鐘</span> 內逃出去！</p>
+                    <p>你必須在 <span style="color:#f0e4c0;font-weight:600;">10 分鐘</span> 內逃出去！</p>
                     <div class="btn-group"><button class="btn btn-yes" onclick="closeModal();continueChooseLight('${choice}')">我知道了！</button></div>
                 `);
                 return;
@@ -2083,7 +2083,7 @@
             timerEl.className = 'timer';
             timerEl.id = 'doorTimer';
             timerEl.style.cssText = 'position:absolute;top:20px;right:20px;z-index:10;';
-            timerEl.textContent = '10:00';
+            timerEl.textContent = '15:00';
             gameScene.appendChild(timerEl);
 
             // 如果有鈴鐺，時間縮短為 6 分鐘
@@ -2093,13 +2093,13 @@
                 warnEl.style.cssText = 'position:absolute;bottom:15%;left:50%;transform:translateX(-50%);z-index:10;';
                 warnEl.innerHTML = `
                     <span class="bell-icon">🔔</span>
-                    <span class="bell-text">鈴鐺聲暴露了你的位置並且驚動了第二人格！時間縮短為 6 分鐘！</span>
+                    <span class="bell-text">鈴鐺聲暴露了你的位置並且驚動了第二人格哈爾沃森！時間縮短為 10 分鐘！</span>
                 `;
                 gameScene.appendChild(warnEl);
-                state.timer = 360;
-                timerEl.textContent = '6:00';
-            } else {
                 state.timer = 600;
+                timerEl.textContent = '10:00';
+            } else {
+                state.timer = 900;
             }
             startDoorTimer();
 
