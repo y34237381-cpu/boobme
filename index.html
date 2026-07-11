@@ -799,6 +799,7 @@
                     { id: 'drawer', label: '抽屜', x: 62, y: 35, w: 35, h: 28, action: 'drawer' },
                     { id: 'generator3', label: '發電機', x: 82, y: 58, w: 40, h: 38, action: 'generator3' },
                     { id: 'bell_freya', label: '鈴鐺', x: 75, y: 16, w: 20, h: 20, action: 'bell' },
+                    { id: 'rag', label: '抹布', x: 20, y: 70, w: 30, h: 25, action: 'rag' },
                 ]
             },
             Lukas: {
@@ -808,6 +809,7 @@
                     { id: 'storehouse_door', label: '倉庫鐵門', x: 68, y: 30, w: 38, h: 50, action: 'storehouse_door' },
                     { id: 'generator4', label: '發電機', x: 38, y: 68, w: 45, h: 40, action: 'generator4' },
                     { id: 'bell_lukas', label: '鈴鐺', x: 86, y: 20, w: 20, h: 20, action: 'bell' },
+                    { id: 'waterproof', label: '防水布', x: 30, y: 55, w: 35, h: 30, action: 'waterproof' },
                 ]
             }
         };
@@ -1043,6 +1045,7 @@
                     }
                     showModal(`
                         <h3>鈴鐺</h3>
+                        <img src="item_bell.png" alt="鈴鐺" onerror="this.style.display='none'">
                         <p>你發現了一個小鈴鐺。</p>
                         <div class="btn-group">
                             <button class="btn btn-yes" onclick="takeBell()">要</button>
@@ -1059,6 +1062,7 @@
                     }
                     showModal(`
                         <h3>床</h3>
+                        <img src="item_sheet.png" alt="床單" onerror="this.style.display='none'">
                         <p>床上有一條摺好的白色床單。</p>
                         <div class="btn-group">
                             <button class="btn btn-yes" onclick="takeSheet()">要</button>
@@ -1106,6 +1110,7 @@
                     }
                     showModal(`
                         <h3>浴巾</h3>
+                        <img src="item_towel.png" alt="浴巾" onerror="this.style.display='none'">
                         <p>架子上掛著一條柔軟的白色浴巾。</p>
                         <div class="btn-group">
                             <button class="btn btn-yes" onclick="takeTowel()">要</button>
@@ -1230,6 +1235,18 @@
                         </div>
                     `);
                     break;
+                
+                case 'rag':
+                    showModal(`
+                        <h3>抹布</h3>
+                        <img src="item_rag.png" alt="抹布" onerror="this.style.display='none'">
+                        <p>水槽旁邊掛著一條髒汙的抹布。</p>
+                        <div class="btn-group">
+                            <button class="btn btn-yes" onclick="takeRag()">要</button>
+                            <button class="btn btn-no" onclick="closeModal()">先不要</button>
+                        </div>
+                    `);
+                    break;
 
                     // ===== 盧卡斯 =====
                 case 'handcuffs':
@@ -1258,6 +1275,22 @@
                         <p>一扇厚重的鐵門，上面有四位數密碼鎖。</p>
                         <div class="btn-group">
                             <button class="btn btn-yes" onclick="closeModal();showStorehousePassword()">輸入密碼</button>
+                            <button class="btn btn-no" onclick="closeModal()">先不要</button>
+                        </div>
+                    `);
+                    break;
+
+                    case 'waterproof':
+                    if (state.hasCloth && state.clothType === '防水布') {
+                        showModal(`<h3>防水布</h3><p>你已經拿過防水布了。</p><div class="btn-group"><button class="btn btn-yes" onclick="closeModal()">知道了</button></div>`);
+                        return;
+                    }
+                    showModal(`
+                        <h3>防水布</h3>
+                        <img src="item_waterproof.png" alt="防水布" onerror="this.style.display='none'">
+                        <p>倉庫角落有一大塊藍色防水布，很厚實。</p>
+                        <div class="btn-group">
+                            <button class="btn btn-yes" onclick="takeWaterproof()">要</button>
                             <button class="btn btn-no" onclick="closeModal()">先不要</button>
                         </div>
                     `);
@@ -1454,10 +1487,24 @@
             showModal(`<h3>獲得浴巾</h3><p>你獲得了浴巾。</p><div class="btn-group"><button class="btn btn-yes" onclick="closeModal()">知道了</button></div>`);
         }
 
+        function takeRag() {
+            state.hasCloth = true;
+            state.clothType = '抹布';
+            closeModal();
+            showModal(`<h3>獲得抹布</h3><p>你獲得了抹布。</p><div class="btn-group"><button class="btn btn-yes" onclick="closeModal()">知道了</button></div>`);
+        }
+
         function takeBell() {
             state.hasBell = true;
             closeModal();
             showModal(`<h3>獲得鈴鐺</h3><p>你獲得了鈴鐺。</p><div class="btn-group"><button class="btn btn-yes" onclick="closeModal()">知道了</button></div>`);
+        }
+
+        function takeWaterproof() {
+            state.hasCloth = true;
+            state.clothType = '防水布';
+            closeModal();
+            showModal(`<h3>獲得防水布</h3><p>你獲得了防水布。</p><div class="btn-group"><button class="btn btn-yes" onclick="closeModal()">知道了</button></div>`);
         }
 
         // ============================================================
