@@ -5,9 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>雪夜逃脫</title>
 
+    <!-- Google Font -->
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Noto+Sans+TC:wght@400;600;700&display=swap" rel="stylesheet" />
 
     <style>
+        /* ===== 全域重置 ===== */
         * {
             margin: 0;
             padding: 0;
@@ -23,6 +25,7 @@
             user-select: none;
         }
 
+        /* ===== 通用容器 ===== */
         .screen {
             display: none;
             width: 100vw;
@@ -212,56 +215,93 @@
             overflow: hidden;
         }
 
-        /* ===== 可點擊物件 ===== */
+        /* 黑暗遮罩 + 手電筒 */
+        .dark-mask {
+            position: absolute;
+            inset: 0;
+            background: #000;
+            pointer-events: none;
+            /* JS 控制手電筒挖洞 */;
+        }
+
+        .game-scene.lit .dark-mask {
+            display: none;
+        }
+
+        /* 場景內可點擊物件 */
         .clickable {
             position: absolute;
             cursor: pointer;
+            border: 2px solid rgba(255, 255, 255, 0);
+            border-radius: 8px;
+            transition: border-color 0.3s;
+            min-width: 40px;
+            min-height: 40px;
             z-index: 5;
-            border: none;
-            background: transparent;
-            border-radius: 0;
-            transition: none;
         }
-
-        .clickable::after {
-            content: '';
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 10px;
-            height: 10px;
-            background: rgba(255, 255, 255, 0.35);
-            border-radius: 50%;
-            pointer-events: none;
-            box-shadow: 0 0 12px rgba(255, 255, 255, 0.15);
-            transition: all 0.25s ease;
-        }
-
-        .clickable:hover::after {
-            background: rgba(255, 255, 255, 0.7);
-            box-shadow: 0 0 24px rgba(255, 255, 255, 0.3);
-            transform: translate(-50%, -50%) scale(1.3);
+        .clickable:hover {
+            border-color: rgba(255, 215, 140, 0.6);
+            background: rgba(255, 215, 140, 0.08);
         }
 
         .clickable-label {
             position: absolute;
-            bottom: -26px;
+            bottom: -28px;
             left: 50%;
             transform: translateX(-50%);
             font-size: 12px;
             color: #d4c9a8;
-            background: rgba(0, 0, 0, 0.75);
-            padding: 2px 12px;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 2px 10px;
             border-radius: 4px;
             white-space: nowrap;
             opacity: 0;
-            transition: opacity 0.25s;
+            transition: opacity 0.3s;
             pointer-events: none;
-            font-family: 'Noto Sans TC', sans-serif;
         }
         .clickable:hover .clickable-label {
             opacity: 1;
+        }
+
+        /* ===== 道具欄 ===== */
+        .inventory-bar {
+            position: absolute;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 12px;
+            padding: 14px 28px;
+            background: rgba(10, 8, 6, 0.85);
+            border: 1px solid rgba(180, 160, 130, 0.2);
+            border-radius: 16px;
+            backdrop-filter: blur(12px);
+            box-shadow: 0 8px 40px rgba(0, 0, 0, 0.7);
+            z-index: 20;
+            min-height: 80px;
+            min-width: 200px;
+        }
+        .inventory-slot {
+            width: 64px;
+            height: 64px;
+            border: 1px dashed rgba(180, 160, 130, 0.15);
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.03);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            color: #6a6058;
+            transition: all 0.3s;
+        }
+        .inventory-slot.filled {
+            border: 1px solid rgba(180, 160, 130, 0.3);
+            background: rgba(255, 255, 255, 0.06);
+        }
+        .inventory-slot img {
+            max-width: 48px;
+            max-height: 48px;
+            object-fit: contain;
         }
 
         /* ===== 彈窗 ===== */
@@ -306,11 +346,10 @@
             text-align: left;
         }
         .modal-box img {
-            max-width: 80%;
-            max-height: 150px;
+            max-width: 100%;
+            max-height: 300px;
             border-radius: 8px;
-            margin: 12px auto;
-            display: block;
+            margin: 12px 0;
             border: 1px solid rgba(180, 160, 130, 0.15);
         }
         .modal-box .btn-group {
@@ -518,6 +557,7 @@
             }
         }
 
+        /* 結局畫面 */
         .ending-text {
             font-size: 18px;
             line-height: 2;
@@ -526,7 +566,12 @@
             padding: 8px 0;
             white-space: pre-wrap;
         }
+        .ending-text .highlight {
+            color: #f0e4c0;
+            font-weight: 600;
+        }
 
+        /* 場景內的方向箭頭（SVG） */
         .scene-nav {
             position: absolute;
             z-index: 10;
@@ -583,6 +628,16 @@
                 padding: 10px 0;
                 font-size: 18px;
             }
+            .inventory-bar {
+                padding: 10px 16px;
+                gap: 8px;
+                min-height: 60px;
+                bottom: 16px;
+            }
+            .inventory-slot {
+                width: 48px;
+                height: 48px;
+            }
             .choice-btn {
                 padding: 12px 24px;
                 font-size: 16px;
@@ -590,18 +645,6 @@
             .timer {
                 font-size: 30px;
                 padding: 6px 16px;
-            }
-            .clickable-label {
-                font-size: 10px;
-                bottom: -22px;
-                padding: 1px 8px;
-            }
-            .clickable::after {
-                width: 8px;
-                height: 8px;
-            }
-            .modal-box img {
-                max-height: 120px;
             }
         }
 
@@ -657,18 +700,6 @@
                 padding: 8px 0;
                 font-size: 16px;
             }
-            .clickable-label {
-                font-size: 9px;
-                bottom: -18px;
-                padding: 1px 6px;
-            }
-            .clickable::after {
-                width: 6px;
-                height: 6px;
-            }
-            .modal-box img {
-                max-height: 100px;
-            }
         }
     </style>
 </head>
@@ -683,15 +714,32 @@
     <!-- ===== 角色選擇 ===== -->
     <div id="select" class="screen">
         <div class="select-title">選擇你的角色</div>
-        <div class="char-grid" id="charGrid"></div>
+        <div class="char-grid" id="charGrid">
+            <!-- 由 JS 動態產生 -->
+        </div>
     </div>
 
     <!-- ===== 遊戲畫面 ===== -->
     <div id="game" class="screen">
-        <div class="game-scene" id="gameScene"></div>
+        <div class="game-scene" id="gameScene">
+            <!-- 黑暗遮罩（手電筒效果用 canvas 實現） -->
+            <canvas id="darkCanvas" style="position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:2;display:block;"></canvas>
+
+            <!-- 可點擊物件由 JS 動態生成 -->
+
+            <!-- 道具欄 -->
+            <div class="inventory-bar" id="inventoryBar">
+                <div class="inventory-slot" data-index="0"></div>
+                <div class="inventory-slot" data-index="1"></div>
+                <div class="inventory-slot" data-index="2"></div>
+                <div class="inventory-slot" data-index="3"></div>
+                <div class="inventory-slot" data-index="4"></div>
+                <div class="inventory-slot" data-index="5"></div>
+            </div>
+        </div>
     </div>
 
-    <!-- ===== 彈窗 ===== -->
+    <!-- ===== 通用彈窗 ===== -->
     <div class="modal-overlay" id="modal">
         <div class="modal-box" id="modalBox">
             <div id="modalContent"></div>
@@ -704,6 +752,7 @@
         //  資料定義
         // ============================================================
 
+        // 角色資料
         const CHARACTERS = {
             Astrid: {
                 id: 'Astrid',
@@ -739,102 +788,120 @@
             }
         };
 
-        // ============================================================
-        //  場景配置
-        // ============================================================
-
+        // 角色房間配置
         const ROOM_CONFIG = {
             Astrid: {
                 background: 'room_bedroom.jpg',
+                isLit: false,
+                hasPhoneLight: false, // 需要找蠟燭
                 items: [
-                    { id: 'bed', label: '床', x: 18, y: 52, w: 80, h: 55, action: 'bed' },
-                    { id: 'desk', label: '書桌', x: 55, y: 28, w: 70, h: 50, action: 'desk' },
-                    { id: 'notebook', label: '日記', x: 62, y: 35, w: 30, h: 22, action: 'notebook' },
-                    { id: 'generator1', label: '發電機', x: 12, y: 72, w: 45, h: 40, action: 'generator1' },
-                    { id: 'bell', label: '鈴鐺', x: 82, y: 22, w: 20, h: 20, action: 'bell' },
+                    { id: 'bed', label: '床', x: 20, y: 50, w: 160, h: 100, action: 'bed' },
+                    { id: 'desk', label: '書桌', x: 55, y: 25, w: 120, h: 80, action: 'desk' },
+                    { id: 'notebook', label: '好人格日記', x: 65, y: 35, w: 40, h: 30, action: 'notebook' },
+                    { id: 'generator1', label: '1號發電機', x: 10, y: 75, w: 60, h: 50, action: 'generator1' },
+                    { id: 'bell', label: '鈴鐺', x: 85, y: 20, w: 30, h: 30, action: 'bell' },
                 ]
             },
             Elias: {
                 background: 'room_bathroom.jpg',
+                isLit: true,
+                hasPhoneLight: false,
                 items: [
-                    { id: 'towel', label: '浴巾', x: 68, y: 58, w: 35, h: 30, action: 'towel' },
-                    { id: 'bell_elias', label: '鈴鐺', x: 22, y: 32, w: 20, h: 20, action: 'bell' },
-                    { id: 'door_out', label: '浴室門', x: 85, y: 38, w: 20, h: 35, action: 'door_out' },
+                    { id: 'towel', label: '浴巾', x: 70, y: 60, w: 50, h: 40, action: 'towel' },
+                    { id: 'bell_elias', label: '鈴鐺', x: 20, y: 30, w: 30, h: 30, action: 'bell' },
+                    { id: 'door_out', label: '浴室門', x: 85, y: 40, w: 30, h: 50, action: 'door_out' },
                 ]
             },
             EliasLiving: {
                 background: 'room_living.jpg',
+                isLit: false,
+                hasPhoneLight: false,
                 items: [
-                    { id: 'table', label: '桌子', x: 38, y: 48, w: 50, h: 35, action: 'table' },
-                    { id: 'cabinet', label: '櫃子', x: 68, y: 30, w: 35, h: 45, action: 'cabinet' },
-                    { id: 'generator2', label: '發電機', x: 10, y: 70, w: 45, h: 40, action: 'generator2' },
-                    { id: 'bell_living', label: '鈴鐺', x: 85, y: 18, w: 20, h: 20, action: 'bell' },
+                    { id: 'table', label: '桌子', x: 40, y: 50, w: 80, h: 50, action: 'table' },
+                    { id: 'cabinet', label: '櫃子', x: 70, y: 30, w: 50, h: 60, action: 'cabinet' },
+                    { id: 'generator2', label: '2號發電機', x: 10, y: 70, w: 60, h: 50, action: 'generator2' },
+                    { id: 'bell_living', label: '鈴鐺', x: 85, y: 15, w: 30, h: 30, action: 'bell' },
                 ]
             },
             Freya: {
                 background: 'room_kitchen.jpg',
+                isLit: false,
+                hasPhoneLight: true,
                 items: [
-                    { id: 'sink', label: '水槽', x: 28, y: 48, w: 50, h: 38, action: 'sink' },
-                    { id: 'trash', label: '垃圾桶', x: 10, y: 68, w: 30, h: 30, action: 'trash' },
-                    { id: 'drawer', label: '抽屜', x: 62, y: 35, w: 35, h: 28, action: 'drawer' },
-                    { id: 'generator3', label: '發電機', x: 82, y: 58, w: 40, h: 38, action: 'generator3' },
-                    { id: 'bell_freya', label: '鈴鐺', x: 75, y: 16, w: 20, h: 20, action: 'bell' },
+                    { id: 'sink', label: '水槽', x: 30, y: 50, w: 80, h: 50, action: 'sink' },
+                    { id: 'trash', label: '垃圾桶', x: 10, y: 70, w: 40, h: 40, action: 'trash' },
+                    { id: 'drawer', label: '櫥櫃抽屜', x: 65, y: 35, w: 50, h: 40, action: 'drawer' },
+                    { id: 'generator3', label: '3號發電機', x: 85, y: 60, w: 50, h: 50, action: 'generator3' },
+                    { id: 'bell_freya', label: '鈴鐺', x: 75, y: 15, w: 30, h: 30, action: 'bell' },
                 ]
             },
             Lukas: {
                 background: 'room_basement.jpg',
+                isLit: false,
+                hasPhoneLight: true,
                 items: [
-                    { id: 'handcuffs', label: '手銬＋繩索', x: 16, y: 48, w: 45, h: 38, action: 'handcuffs' },
-                    { id: 'storehouse_door', label: '倉庫鐵門', x: 68, y: 30, w: 38, h: 50, action: 'storehouse_door' },
-                    { id: 'generator4', label: '發電機', x: 38, y: 68, w: 45, h: 40, action: 'generator4' },
-                    { id: 'bell_lukas', label: '鈴鐺', x: 86, y: 20, w: 20, h: 20, action: 'bell' },
+                    { id: 'handcuffs', label: '手銬＋繩索', x: 15, y: 50, w: 60, h: 50, action: 'handcuffs' },
+                    { id: 'storehouse_door', label: '倉庫鐵門', x: 70, y: 30, w: 50, h: 70, action: 'storehouse_door' },
+                    { id: 'generator4', label: '4號發電機', x: 40, y: 70, w: 60, h: 50, action: 'generator4' },
+                    { id: 'bell_lukas', label: '鈴鐺', x: 88, y: 20, w: 30, h: 30, action: 'bell' },
                 ]
             }
         };
 
-        // ============================================================
-        //  遊戲狀態
-        // ============================================================
-
+        // 遊戲狀態
         const state = {
-            character: null,
-            scene: null,
+            character: null, // 'Astrid' | 'Elias' | 'Freya' | 'Lukas'
+            scene: null, // 當前場景 key
+            inventory: [], // 道具名稱陣列
+            hasCandle: false,
+            hasLight: false, // 是否已有光源（手機或蠟燭）
+            isLit: false, // 是否開燈（最終選擇）
             notebookUnlocked: false,
             cabinetUnlocked: false,
             surgeryNoteUnlocked: false,
             storehouseUnlocked: false,
             generatorUnlocked: false,
-            hasBell: false,
-            timer: 600,
-            timerRunning: false,
-            timerInterval: null,
-            gameEnded: false,
-            finalChoice: null,
-            hasCloth: false,
-            clothType: '',
-            sceneHistory: [],
-            doorPassword: '29',
+            doorUnlocked: false,
             generatorPassword: '6253',
+            doorPassword: '29',
             cabinetPassword: '198162',
             notebookPassword: '1321',
             surgeryPassword: '1321',
             storehousePassword: '3527',
+            hasBell: false,
+            timer: 600, // 秒
+            timerRunning: false,
+            timerInterval: null,
+            gameEnded: false,
+            finalChoice: null, // 'light' | 'dark'
+            hasCloth: false,
+            clothType: '', // '床單' | '浴巾' | '抹布' | '防水布'
+            sceneHistory: [],
         };
 
         // ============================================================
         //  DOM 參考
         // ============================================================
-
         const $ = id => document.getElementById(id);
+        const introScreen = $('intro');
+        const selectScreen = $('select');
+        const gameScreen = $('game');
+        const gameScene = $('gameScene');
         const modal = $('modal');
         const modalContent = $('modalContent');
+        const modalBox = $('modalBox');
+        const darkCanvas = $('darkCanvas');
         const charGrid = $('charGrid');
-        const gameScene = $('gameScene');
+        const inventoryBar = $('inventoryBar');
+
+        let ctx = darkCanvas.getContext('2d');
+        let mouseX = -9999,
+            mouseY = -9999;
+        let isDarkMode = true;
 
         // ============================================================
         //  畫面切換
         // ============================================================
-
         function showScreen(id) {
             document.querySelectorAll('.screen').forEach(el => el.classList.remove('active'));
             $(id).classList.add('active');
@@ -865,14 +932,18 @@
         // ============================================================
         //  遊戲啟動
         // ============================================================
-
         function startGame(charId) {
             state.character = charId;
+            state.inventory = [];
+            state.hasCandle = false;
+            state.hasLight = false;
+            state.isLit = false;
             state.notebookUnlocked = false;
             state.cabinetUnlocked = false;
             state.surgeryNoteUnlocked = false;
             state.storehouseUnlocked = false;
             state.generatorUnlocked = false;
+            state.doorUnlocked = false;
             state.hasBell = false;
             state.timer = 600;
             state.timerRunning = false;
@@ -882,13 +953,34 @@
             state.clothType = '';
             state.sceneHistory = [];
 
-            if (charId === 'Astrid') state.scene = 'Astrid';
-            else if (charId === 'Elias') state.scene = 'Elias';
-            else if (charId === 'Freya') state.scene = 'Freya';
-            else if (charId === 'Lukas') state.scene = 'Lukas';
+            // 根據角色設定初始場景
+            if (charId === 'Astrid') {
+                state.scene = 'Astrid';
+            } else if (charId === 'Elias') {
+                state.scene = 'Elias';
+            } else if (charId === 'Freya') {
+                state.scene = 'Freya';
+            } else if (charId === 'Lukas') {
+                state.scene = 'Lukas';
+            }
 
             showScreen('game');
             renderScene();
+            updateInventory();
+            setupDarkCanvas();
+
+            // 如果有手機光源
+            const cfg = getSceneConfig(state.scene);
+            if (cfg && cfg.hasPhoneLight) {
+                state.hasLight = true;
+                isDarkMode = false;
+                darkCanvas.style.display = 'none';
+            } else {
+                isDarkMode = true;
+                darkCanvas.style.display = 'block';
+            }
+
+            // 開場劇情
             showOpeningStory(charId);
         }
 
@@ -903,60 +995,135 @@
         // ============================================================
         //  開場劇情
         // ============================================================
-
         function showOpeningStory(charId) {
-            const commonIntro = `你們四個人——芙蕾雅、艾絲特、艾利亞斯、盧卡斯——總是會在半夜走同一條隧道去觀星。
+            const stories = {
+                Astrid: `妳跟隨主人走進屋內，客廳溫暖而老舊，壁爐裡還有未燒盡的柴火。
+        主人說：「房間在二樓，請自便。」說完便消失在走廊盡頭。
 
-        但今晚，隧道被雪崩封住了。你們下車查看許久，發現真的無法通行。想說算了，正要回頭時，才發現輪胎也拋錨了。
+        妳的肚子發出巨大抗議——妳決定先去找點吃的。
+        但走到一半妳停下來，隱約覺得……這棟房子好像不只主人一個人。
 
-        正當煩惱怎麼辦，突然有人跳出來解救你們。他自稱是住在附近山裡的木屋主人，說可以讓你們借住一晚。你們很感激地入住了。
+        「算了，先填飽肚子再說！」艾絲特拍拍肚子，往廚房走去。`,
 
-        到達他家後，主人稍微交代事情，就回房間休息了。本來大家也打算回房間安頓，但芙蕾雅真的太餓了，決定去廚房覓食。艾絲特、艾利亞斯、盧卡斯則留在房間準備洗澡。
+                Elias: `你被分配到二樓的房間，隔壁就是浴室。
+        主人說：「熱水器可能有點老舊，但還能用。」說完便離開了。
 
-        艾利亞斯去洗澡時發現熱水器壞掉，盧卡斯就前往了地下室維修。艾絲特則留在房間先休息。
+        你走進浴室，鏡子裡映出你那雙著名的綠色眼睛。
+        「哼，這鏡子還算配得上我。」
 
-        突然……燈就暗掉了。
+        打開水龍頭——水是冰冷的。你皺了皺眉，決定先回客廳看看。
+        「希望他們別搞出什麼亂子。」`,
 
-        在陌生環境伸手不見五指，你們也不敢隨便動彈。首要目標，是先找到能夠作為光源的設備。`;
+                Freya: `你沿著走廊走到盡頭，廚房就在那裡。
+        你拿出手機想開手電筒——螢幕閃了兩下，然後徹底黑了。
+        「……手機壞了。」芙蕾雅面無表情地把手機收進口袋。
 
-            const charSpecific = {
-                Astrid: `\n\n妳待在房間裡，四周一片漆黑。\n妳記得床頭好像有東西……先摸黑找找看吧。`,
+        月光從窗戶照進來，照亮了流理台。
+        你聞到一股淡淡的鐵鏽味，好像有什麼東西在暗處反光。
 
-                Elias: `\n\n你人在浴室，這裡的燈還是亮的——但外面一片漆黑。\n你決定先看看浴室裡有什麼能用的，再出去探索。`,
+        芙蕾雅瞇起眼睛，沒有說話，但腳步已經往那個方向移動。`,
 
-                Freya: `\n\n你人在廚房，手機手電筒還能用。\n你打開手機，照亮了周圍——廚房裡似乎有些不太對勁的東西。`,
+                Lukas: `主人說：「熱水器壞了，如果你們會修的話，地下室有工具。」
+        盧卡斯立刻舉手：「我去。」
 
-                Lukas: `\n\n你人在地下室，手機手電筒還能用。\n你打開手機，照亮了周圍——地下室很大，盡頭有一扇鎖住的鐵門。`
+        你拿著手電筒走下樓梯，地下室比你想像中更大、更冷。
+        牆角堆滿了雜物，盡頭有一扇鎖住的鐵門。
+
+        你聽到頭頂傳來腳步聲，有人在樓上走動。
+        「……希望他們沒事。」盧卡斯握緊了手電筒。`
             };
 
-            const fullStory = commonIntro + (charSpecific[charId] || '');
-
+            const story = stories[charId] || '你進入了房子。';
             showModal(`
-                <h3>📖 開場故事</h3>
-                <p style="white-space:pre-wrap;font-size:15px;line-height:1.9;text-align:left;color:#d4c9a8;">${fullStory}</p>
-                <div class="btn-group"><button class="btn btn-yes" onclick="closeModal();startExploration()">開始探索</button></div>
+                <h3>開場</h3>
+                <p style="white-space:pre-wrap;font-size:15px;line-height:1.8;">${story}</p>
+                <div class="btn-group"><button class="btn btn-yes" onclick="closeModal();startExploration()">繼續</button></div>
             `);
         }
 
         function startExploration() {
+            // 進入探索模式
             renderScene();
+            updateInventory();
+        }
+
+        // ============================================================
+        //  黑暗遮罩（手電筒效果）
+        // ============================================================
+        function setupDarkCanvas() {
+            const rect = gameScene.getBoundingClientRect();
+            darkCanvas.width = rect.width || window.innerWidth;
+            darkCanvas.height = rect.height || window.innerHeight;
+
+            darkCanvas.style.display = isDarkMode ? 'block' : 'none';
+
+            if (isDarkMode) {
+                gameScene.addEventListener('mousemove', onMouseMove);
+                gameScene.addEventListener('mouseleave', onMouseLeave);
+                drawDarkMask();
+            } else {
+                gameScene.removeEventListener('mousemove', onMouseMove);
+                gameScene.removeEventListener('mouseleave', onMouseLeave);
+            }
+        }
+
+        function onMouseMove(e) {
+            const rect = gameScene.getBoundingClientRect();
+            mouseX = e.clientX - rect.left;
+            mouseY = e.clientY - rect.top;
+            drawDarkMask();
+        }
+
+        function onMouseLeave() {
+            mouseX = -9999;
+            mouseY = -9999;
+            drawDarkMask();
+        }
+
+        function drawDarkMask() {
+            const w = darkCanvas.width,
+                h = darkCanvas.height;
+            ctx.clearRect(0, 0, w, h);
+
+            // 全黑背景
+            ctx.fillStyle = '#000';
+            ctx.fillRect(0, 0, w, h);
+
+            // 如果有光源（蠟燭或手機），在滑鼠位置挖洞
+            if (state.hasLight && mouseX > 0 && mouseY > 0) {
+                const gradient = ctx.createRadialGradient(mouseX, mouseY, 10, mouseX, mouseY, 260);
+                gradient.addColorStop(0, 'rgba(0,0,0,0)');
+                gradient.addColorStop(0.4, 'rgba(0,0,0,0.1)');
+                gradient.addColorStop(0.7, 'rgba(0,0,0,0.5)');
+                gradient.addColorStop(1, 'rgba(0,0,0,0.95)');
+                ctx.globalCompositeOperation = 'destination-out';
+                ctx.fillStyle = gradient;
+                ctx.beginPath();
+                ctx.arc(mouseX, mouseY, 260, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.globalCompositeOperation = 'source-over';
+            } else if (!state.hasLight) {
+                // 完全黑暗
+            }
         }
 
         // ============================================================
         //  場景渲染
         // ============================================================
-
         function renderScene() {
             const cfg = getCurrentConfig();
             if (!cfg) return;
 
+            // 設定背景
             gameScene.style.backgroundImage = `url('${cfg.background}')`;
             gameScene.style.backgroundSize = 'cover';
             gameScene.style.backgroundPosition = 'center';
 
+            // 清除舊的 clickable
             document.querySelectorAll('.clickable').forEach(el => el.remove());
             document.querySelectorAll('.scene-nav').forEach(el => el.remove());
 
+            // 根據場景放置 clickable
             const rect = gameScene.getBoundingClientRect();
             const w = rect.width || window.innerWidth;
             const h = rect.height || window.innerHeight;
@@ -974,47 +1141,72 @@
                 gameScene.appendChild(el);
             });
 
-            // 返回按鈕
+            // 返回按鈕 (SVG)
             const backBtn = document.createElement('div');
             backBtn.className = 'scene-nav';
             backBtn.style.cssText =
-                'position:absolute;top:20px;left:20px;z-index:10;cursor:pointer;opacity:0.5;transition:opacity 0.3s;';
+                'position:absolute;top:20px;left:20px;z-index:10;cursor:pointer;opacity:0.6;transition:opacity 0.3s;';
             backBtn.innerHTML = `
                 <svg width="40" height="40" viewBox="0 0 40 40">
-                    <rect x="2" y="2" width="36" height="36" rx="8" fill="rgba(0,0,0,0.6)" stroke="rgba(255,255,255,0.15)" stroke-width="1.5"/>
+                    <rect x="2" y="2" width="36" height="36" rx="8" fill="rgba(0,0,0,0.6)" stroke="rgba(255,255,255,0.2)" stroke-width="1.5"/>
                     <path d="M22 14 L14 20 L22 26" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
                 </svg>
             `;
             backBtn.onmouseenter = () => backBtn.style.opacity = '1';
-            backBtn.onmouseleave = () => backBtn.style.opacity = '0.5';
+            backBtn.onmouseleave = () => backBtn.style.opacity = '0.6';
             backBtn.onclick = () => {
                 if (state.sceneHistory.length > 0) {
                     const prev = state.sceneHistory.pop();
                     state.scene = prev;
                     renderScene();
+                    updateInventory();
                 } else {
+                    // 回到角色選擇
                     if (confirm('確定要退出遊戲嗎？進度將遺失。')) {
                         showScreen('select');
                     }
                 }
             };
             gameScene.appendChild(backBtn);
+
+            // 更新黑暗遮罩
+            const cfg2 = getCurrentConfig();
+            if (cfg2 && cfg2.hasPhoneLight) {
+                state.hasLight = true;
+                isDarkMode = false;
+                darkCanvas.style.display = 'none';
+            } else if (state.hasCandle) {
+                state.hasLight = true;
+                isDarkMode = true;
+                darkCanvas.style.display = 'block';
+                setupDarkCanvas();
+            } else {
+                isDarkMode = true;
+                darkCanvas.style.display = 'block';
+                setupDarkCanvas();
+            }
+
+            // 如果場景是亮的（浴室）
+            if (cfg2 && cfg2.isLit) {
+                isDarkMode = false;
+                darkCanvas.style.display = 'none';
+                state.hasLight = true;
+            }
+
+            updateInventory();
         }
 
         // ============================================================
-        //  點擊處理
+        //  物件點擊處理
         // ============================================================
-
         function handleClick(action) {
             if (state.gameEnded) return;
 
+            const charId = state.character;
+
             switch (action) {
-                // ===== 鈴鐺（共通） =====
+                // ---- 共通 ----
                 case 'bell':
-                case 'bell_elias':
-                case 'bell_living':
-                case 'bell_freya':
-                case 'bell_lukas':
                     if (state.hasBell) {
                         showModal(`<h3>鈴鐺</h3><p>你已經拿過鈴鐺了。</p><div class="btn-group"><button class="btn btn-yes" onclick="closeModal()">知道了</button></div>`);
                         return;
@@ -1029,9 +1221,9 @@
                     `);
                     break;
 
-                    // ===== 艾絲特 =====
+                    // ---- 艾絲特 ----
                 case 'bed':
-                    if (state.hasCloth && state.clothType === '床單') {
+                    if (state.inventory.includes('床單')) {
                         showModal(`<h3>床</h3><p>你已經拿過床單了。</p><div class="btn-group"><button class="btn btn-yes" onclick="closeModal()">知道了</button></div>`);
                         return;
                     }
@@ -1046,41 +1238,62 @@
                     break;
 
                 case 'desk':
-                    showModal(`
-                        <h3>書桌</h3>
-                        <p>書桌上散落著幾張紙。筆筒裡插著一把生鏽的鑰匙。</p>
-                        <p>打開抽屜，裡面有一本筆記本——《雪崩成因研究》。</p>
-                        <p>末頁寫著：「第2次實驗成功」</p>
-                        <div class="btn-group"><button class="btn btn-yes" onclick="closeModal()">知道了</button></div>
-                    `);
+                    if (!state.inventory.includes('鑰匙')) {
+                        showModal(`
+                            <h3>書桌</h3>
+                            <p>書桌上散落著幾張紙。筆筒裡插著一把生鏽的鑰匙。</p>
+                            <div class="btn-group">
+                                <button class="btn btn-yes" onclick="takeKey()">拿鑰匙</button>
+                                <button class="btn btn-no" onclick="closeModal()">先不要</button>
+                            </div>
+                        `);
+                    } else {
+                        showModal(`
+                            <h3>書桌</h3>
+                            <p>抽屜裡有一本筆記本——《雪崩成因研究》。</p>
+                            <p>末頁寫著：「第2次實驗成功」</p>
+                            <div class="btn-group"><button class="btn btn-yes" onclick="closeModal()">知道了</button></div>
+                        `);
+                    }
                     break;
 
                 case 'notebook':
                     if (state.notebookUnlocked) {
+                        // 顯示日記內容（4頁）
                         showNotebookPages();
                         return;
                     }
                     showModal(`
                         <h3>好人格日記</h3>
-                        <img src="obj_notebook.jpg" alt="好人格日記" onerror="this.style.display='none'">
                         <p>一本皮革封面的日記，上面有四位數密碼鎖。</p>
+                        <div style="margin:12px 0;">
+                            <div class="password-lock" id="notebookLock">
+                                <div class="password-slot" data-idx="0"></div>
+                                <div class="password-slot" data-idx="1"></div>
+                                <div class="password-slot" data-idx="2"></div>
+                                <div class="password-slot" data-idx="3"></div>
+                            </div>
+                            <div class="numpad" id="notebookNumpad"></div>
+                        </div>
                         <div class="btn-group">
-                            <button class="btn btn-yes" onclick="closeModal();showNotebookPassword()">輸入密碼</button>
-                            <button class="btn btn-no" onclick="closeModal()">先不要</button>
+                            <button class="btn btn-close" onclick="closeModal()">取消</button>
                         </div>
                     `);
+                    // 初始化密碼鎖
+                    initPasswordLock('notebookLock', 'notebookNumpad', '1321', () => {
+                        state.notebookUnlocked = true;
+                        closeModal();
+                        showNotebookPages();
+                    });
                     break;
 
                 case 'generator1':
-                case 'generator2':
-                case 'generator3':
-                case 'generator4':
-                    showGeneratorImage(action);
+                    showGeneratorModal('1號', 'generator1');
                     break;
 
-                    // ===== 艾利亞斯 =====
+                    // ---- 艾利亞斯 ----
                 case 'towel':
-                    if (state.hasCloth && state.clothType === '浴巾') {
+                    if (state.inventory.includes('浴巾')) {
                         showModal(`<h3>浴巾</h3><p>你已經拿過浴巾了。</p><div class="btn-group"><button class="btn btn-yes" onclick="closeModal()">知道了</button></div>`);
                         return;
                     }
@@ -1095,9 +1308,12 @@
                     break;
 
                 case 'door_out':
+                    // 從浴室走到客廳（黑暗）
                     state.sceneHistory.push('Elias');
                     state.scene = 'EliasLiving';
                     renderScene();
+                    updateInventory();
+                    // 觸發踢桌子劇情
                     setTimeout(() => {
                         showModal(`
                             <h3>客廳</h3>
@@ -1108,7 +1324,7 @@
                             <p>你伸手摸了摸——是一個櫃子，上面有密碼鎖。旁邊好像掉了一張紙。</p>
                             <div class="btn-group"><button class="btn btn-yes" onclick="closeModal()">查看紙條</button></div>
                         `);
-                    }, 400);
+                    }, 300);
                     break;
 
                 case 'table':
@@ -1126,7 +1342,7 @@
                             <h3>櫃子</h3>
                             <p>櫃子裡有一根蠟燭和一盒火柴。</p>
                             <p>你點燃了蠟燭，黑暗被驅散了。</p>
-                            <div class="btn-group"><button class="btn btn-yes" onclick="closeModal()">繼續</button></div>
+                            <div class="btn-group"><button class="btn btn-yes" onclick="takeCandle();closeModal();">獲得蠟燭</button></div>
                         `);
                         return;
                     }
@@ -1148,21 +1364,40 @@
                             <button class="btn btn-close" onclick="closeModal()">取消</button>
                         </div>
                     `);
-                    setTimeout(() => {
-                        initPasswordLock('cabinetLock', 'cabinetNumpad', state.cabinetPassword, () => {
-                            state.cabinetUnlocked = true;
-                            closeModal();
-                            showModal(`
-                                <h3>櫃子打開了</h3>
-                                <p>裡面放著一根蠟燭和一盒火柴。</p>
-                                <p>你點燃了蠟燭，黑暗被驅散了。</p>
-                                <div class="btn-group"><button class="btn btn-yes" onclick="closeModal()">繼續</button></div>
-                            `);
-                        }, 6);
-                    }, 50);
+                    initPasswordLock('cabinetLock', 'cabinetNumpad', '198162', () => {
+                        state.cabinetUnlocked = true;
+                        closeModal();
+                        // 自動獲得蠟燭
+                        takeCandle();
+                        showModal(`
+                            <h3>櫃子打開了</h3>
+                            <p>裡面放著一根蠟燭和一盒火柴。</p>
+                            <p>你點燃了蠟燭，黑暗被驅散了。</p>
+                            <div class="btn-group"><button class="btn btn-yes" onclick="closeModal()">繼續</button></div>
+                        `);
+                    }, 6);
                     break;
 
-                    // ===== 芙蕾雅 =====
+                case 'generator2':
+                    showGeneratorModal('2號', 'generator2');
+                    break;
+
+                case 'bell_living':
+                    if (state.hasBell) {
+                        showModal(`<h3>鈴鐺</h3><p>你已經拿過鈴鐺了。</p><div class="btn-group"><button class="btn btn-yes" onclick="closeModal()">知道了</button></div>`);
+                        return;
+                    }
+                    showModal(`
+                        <h3>鈴鐺</h3>
+                        <p>你發現了一個小鈴鐺。</p>
+                        <div class="btn-group">
+                            <button class="btn btn-yes" onclick="takeBell()">要</button>
+                            <button class="btn btn-no" onclick="closeModal()">先不要</button>
+                        </div>
+                    `);
+                    break;
+
+                    // ---- 芙蕾雅 ----
                 case 'sink':
                     showModal(`
                         <h3>水槽</h3>
@@ -1186,25 +1421,71 @@
                     if (state.surgeryNoteUnlocked) {
                         showModal(`
                             <h3>壞人格手術筆記</h3>
-                            <img src="obj_surgery_note_open.jpg" alt="手術筆記內頁" onerror="this.style.display='none'">
-                            <p style="white-space:pre-wrap;font-size:15px;line-height:1.8;">「手術計畫：\n需要白皙的皮膚、橘紅的頭髮、漂亮的綠眼睛、修長的腿。\n四項材料已確認到齊。\n只差最後的『停電』時刻……」\n\n<br>角落寫著一行字：\n<span style="color:#f0e4c0;font-weight:600;">「主人的出生年份是 1929 年……最後兩位數是 29。」</span></p>
-                            <div class="btn-group"><button class="btn btn-yes" onclick="closeModal();showDoorHint()">記下了</button></div>
+                            <p style="white-space:pre-wrap;font-size:15px;line-height:1.8;">「手術計畫：
+                            需要白皙的皮膚、橘紅的頭髮、漂亮的綠眼睛、修長的腿。
+                            四項材料已確認到齊。
+                            只差最後的『停電』時刻……」
+
+                            <br><br>角落寫著一行字：
+                            <span style="color:#f0e4c0;font-weight:600;">「主人的出生年份是 1929 年？不對……是 1829？算了，反正最後兩位數是 29。」</span></p>
+                            <div class="btn-group"><button class="btn btn-yes" onclick="closeModal();showDoorHint('Freya')">記下了</button></div>
                         `);
                         return;
                     }
                     showModal(`
                         <h3>櫥櫃抽屜</h3>
                         <p>抽屜裡有一本黑色封面的筆記本，上面寫著「手術計畫」。</p>
-                        <img src="obj_surgery_note.jpg" alt="手術筆記封面" onerror="this.style.display='none'">
                         <p>上面有四位數密碼鎖。</p>
+                        <div style="margin:12px 0;">
+                            <div class="password-lock" id="surgeryLock">
+                                <div class="password-slot" data-idx="0"></div>
+                                <div class="password-slot" data-idx="1"></div>
+                                <div class="password-slot" data-idx="2"></div>
+                                <div class="password-slot" data-idx="3"></div>
+                            </div>
+                            <div class="numpad" id="surgeryNumpad"></div>
+                        </div>
                         <div class="btn-group">
-                            <button class="btn btn-yes" onclick="closeModal();showSurgeryPassword()">輸入密碼</button>
+                            <button class="btn btn-close" onclick="closeModal()">取消</button>
+                        </div>
+                    `);
+                    initPasswordLock('surgeryLock', 'surgeryNumpad', '1321', () => {
+                        state.surgeryNoteUnlocked = true;
+                        closeModal();
+                        showModal(`
+                            <h3>壞人格手術筆記</h3>
+                            <p style="white-space:pre-wrap;font-size:15px;line-height:1.8;">「手術計畫：
+                            需要白皙的皮膚、橘紅的頭髮、漂亮的綠眼睛、修長的腿。
+                            四項材料已確認到齊。
+                            只差最後的『停電』時刻……」
+
+                            <br><br>角落寫著一行字：
+                            <span style="color:#f0e4c0;font-weight:600;">「主人的出生年份是 1929 年……最後兩位數是 29。」</span></p>
+                            <div class="btn-group"><button class="btn btn-yes" onclick="closeModal();showDoorHint('Freya')">記下了</button></div>
+                        `);
+                    });
+                    break;
+
+                case 'generator3':
+                    showGeneratorModal('3號', 'generator3');
+                    break;
+
+                case 'bell_freya':
+                    if (state.hasBell) {
+                        showModal(`<h3>鈴鐺</h3><p>你已經拿過鈴鐺了。</p><div class="btn-group"><button class="btn btn-yes" onclick="closeModal()">知道了</button></div>`);
+                        return;
+                    }
+                    showModal(`
+                        <h3>鈴鐺</h3>
+                        <p>窗台上有一個小鈴鐺。</p>
+                        <div class="btn-group">
+                            <button class="btn btn-yes" onclick="takeBell()">要</button>
                             <button class="btn btn-no" onclick="closeModal()">先不要</button>
                         </div>
                     `);
                     break;
 
-                    // ===== 盧卡斯 =====
+                    // ---- 盧卡斯 ----
                 case 'handcuffs':
                     showModal(`
                         <h3>手銬＋繩索</h3>
@@ -1217,17 +1498,19 @@
 
                 case 'storehouse_door':
                     if (state.storehouseUnlocked) {
+                        // 進入倉庫，顯示4號發電機
                         showModal(`
                             <h3>倉庫</h3>
                             <p>鐵門打開了，裡面是一間小倉庫。</p>
                             <p>角落有一台大型發電機——<span style="color:#f0e4c0;font-weight:600;">4號總發電機</span>。</p>
-                            <div class="btn-group"><button class="btn btn-yes" onclick="closeModal();showGeneratorImage('generator4')">查看發電機</button></div>
+                            <div class="btn-group"><button class="btn btn-yes" onclick="closeModal();showGeneratorModal('4號總', 'generator4')">查看發電機</button></div>
                         `);
                         return;
                     }
                     showModal(`
                         <h3>倉庫鐵門</h3>
                         <p>一扇厚重的鐵門，上面有四位數密碼鎖。</p>
+                        <p style="font-size:13px;color:#8a8078;">（密碼需要從其他夥伴那裡獲得）</p>
                         <div style="margin:12px 0;">
                             <div class="password-lock" id="storehouseLock">
                                 <div class="password-slot" data-idx="0"></div>
@@ -1241,18 +1524,35 @@
                             <button class="btn btn-close" onclick="closeModal()">取消</button>
                         </div>
                     `);
-                    setTimeout(() => {
-                        initPasswordLock('storehouseLock', 'storehouseNumpad', state.storehousePassword, () => {
-                            state.storehouseUnlocked = true;
-                            closeModal();
-                            showModal(`
-                                <h3>倉庫</h3>
-                                <p>鐵門打開了，裡面是一間小倉庫。</p>
-                                <p>角落有一台大型發電機——<span style="color:#f0e4c0;font-weight:600;">4號總發電機</span>。</p>
-                                <div class="btn-group"><button class="btn btn-yes" onclick="closeModal();showGeneratorImage('generator4')">查看發電機</button></div>
-                            `);
-                        });
-                    }, 50);
+                    initPasswordLock('storehouseLock', 'storehouseNumpad', '3527', () => {
+                        state.storehouseUnlocked = true;
+                        closeModal();
+                        showModal(`
+                            <h3>倉庫</h3>
+                            <p>鐵門打開了，裡面是一間小倉庫。</p>
+                            <p>角落有一台大型發電機——<span style="color:#f0e4c0;font-weight:600;">4號總發電機</span>。</p>
+                            <div class="btn-group"><button class="btn btn-yes" onclick="closeModal();showGeneratorModal('4號總', 'generator4')">查看發電機</button></div>
+                        `);
+                    });
+                    break;
+
+                case 'generator4':
+                    showGeneratorModal('4號總', 'generator4');
+                    break;
+
+                case 'bell_lukas':
+                    if (state.hasBell) {
+                        showModal(`<h3>鈴鐺</h3><p>你已經拿過鈴鐺了。</p><div class="btn-group"><button class="btn btn-yes" onclick="closeModal()">知道了</button></div>`);
+                        return;
+                    }
+                    showModal(`
+                        <h3>鈴鐺</h3>
+                        <p>倉庫架子上有一個鈴鐺。</p>
+                        <div class="btn-group">
+                            <button class="btn btn-yes" onclick="takeBell()">要</button>
+                            <button class="btn btn-no" onclick="closeModal()">先不要</button>
+                        </div>
+                    `);
                     break;
 
                 default:
@@ -1261,115 +1561,181 @@
         }
 
         // ============================================================
-        //  日記密碼輸入
+        //  道具取得函數
         // ============================================================
+        function takeSheet() {
+            if (!state.inventory.includes('床單')) {
+                state.inventory.push('床單');
+                state.hasCloth = true;
+                state.clothType = '床單';
+                updateInventory();
+            }
+            closeModal();
+            showModal(`<h3>獲得床單</h3><p>你獲得了床單。</p><div class="btn-group"><button class="btn btn-yes" onclick="closeModal()">知道了</button></div>`);
+        }
 
-        function showNotebookPassword() {
-            showModal(`
-                <h3>好人格日記 - 輸入密碼</h3>
-                <img src="obj_notebook.jpg" alt="好人格日記" onerror="this.style.display='none'">
-                <p>請輸入四位數密碼：</p>
-                <div style="margin:12px 0;">
-                    <div class="password-lock" id="notebookLock">
-                        <div class="password-slot" data-idx="0"></div>
-                        <div class="password-slot" data-idx="1"></div>
-                        <div class="password-slot" data-idx="2"></div>
-                        <div class="password-slot" data-idx="3"></div>
-                    </div>
-                    <div class="numpad" id="notebookNumpad"></div>
-                </div>
-                <div class="btn-group">
-                    <button class="btn btn-close" onclick="closeModal()">取消</button>
-                </div>
-            `);
-            setTimeout(() => {
-                initPasswordLock('notebookLock', 'notebookNumpad', state.notebookPassword, () => {
-                    state.notebookUnlocked = true;
-                    closeModal();
-                    showNotebookPages();
-                });
-            }, 50);
+        function takeTowel() {
+            if (!state.inventory.includes('浴巾')) {
+                state.inventory.push('浴巾');
+                state.hasCloth = true;
+                state.clothType = '浴巾';
+                updateInventory();
+            }
+            closeModal();
+            showModal(`<h3>獲得浴巾</h3><p>你獲得了浴巾。</p><div class="btn-group"><button class="btn btn-yes" onclick="closeModal()">知道了</button></div>`);
+        }
+
+        function takeRag() {
+            if (!state.inventory.includes('抹布')) {
+                state.inventory.push('抹布');
+                state.hasCloth = true;
+                state.clothType = '抹布';
+                updateInventory();
+            }
+            closeModal();
+            showModal(`<h3>獲得抹布</h3><p>你獲得了抹布。</p><div class="btn-group"><button class="btn btn-yes" onclick="closeModal()">知道了</button></div>`);
+        }
+
+        function takeWaterproof() {
+            if (!state.inventory.includes('防水布')) {
+                state.inventory.push('防水布');
+                state.hasCloth = true;
+                state.clothType = '防水布';
+                updateInventory();
+            }
+            closeModal();
+            showModal(`<h3>獲得防水布</h3><p>你獲得了防水布。</p><div class="btn-group"><button class="btn btn-yes" onclick="closeModal()">知道了</button></div>`);
+        }
+
+        function takeKey() {
+            if (!state.inventory.includes('鑰匙')) {
+                state.inventory.push('鑰匙');
+                updateInventory();
+            }
+            closeModal();
+            showModal(`<h3>獲得鑰匙</h3><p>你從筆筒裡拿到了生鏽的鑰匙。</p><div class="btn-group"><button class="btn btn-yes" onclick="closeModal()">知道了</button></div>`);
+        }
+
+        function takeCandle() {
+            if (!state.inventory.includes('蠟燭')) {
+                state.inventory.push('蠟燭');
+                state.hasCandle = true;
+                state.hasLight = true;
+                updateInventory();
+                // 更新黑暗遮罩
+                isDarkMode = true;
+                darkCanvas.style.display = 'block';
+                setupDarkCanvas();
+            }
+        }
+
+        function takeBell() {
+            if (!state.hasBell) {
+                state.hasBell = true;
+                state.inventory.push('鈴鐺');
+                updateInventory();
+            }
+            closeModal();
+            showModal(`<h3>獲得鈴鐺</h3><p>你獲得了鈴鐺。但這東西可能會發出聲音……</p><div class="btn-group"><button class="btn btn-yes" onclick="closeModal()">知道了</button></div>`);
         }
 
         // ============================================================
-        //  手術筆記密碼輸入
+        //  密碼鎖通用函數
         // ============================================================
+        function initPasswordLock(lockId, numpadId, correctPassword, onSuccess, length = 4) {
+            const lockEl = $(lockId);
+            const numpadEl = $(numpadId);
+            if (!lockEl || !numpadEl) return;
 
-        function showSurgeryPassword() {
-            showModal(`
-                <h3>壞人格手術筆記 - 輸入密碼</h3>
-                <img src="obj_surgery_note.jpg" alt="手術筆記封面" onerror="this.style.display='none'">
-                <p>請輸入四位數密碼：</p>
-                <div style="margin:12px 0;">
-                    <div class="password-lock" id="surgeryLock">
-                        <div class="password-slot" data-idx="0"></div>
-                        <div class="password-slot" data-idx="1"></div>
-                        <div class="password-slot" data-idx="2"></div>
-                        <div class="password-slot" data-idx="3"></div>
-                    </div>
-                    <div class="numpad" id="surgeryNumpad"></div>
-                </div>
-                <div class="btn-group">
-                    <button class="btn btn-close" onclick="closeModal()">取消</button>
-                </div>
-            `);
-            setTimeout(() => {
-                initPasswordLock('surgeryLock', 'surgeryNumpad', state.surgeryPassword, () => {
-                    state.surgeryNoteUnlocked = true;
-                    closeModal();
-                    showModal(`
-                        <h3>壞人格手術筆記</h3>
-                        <img src="obj_surgery_note_open.jpg" alt="手術筆記內頁" onerror="this.style.display='none'">
-                        <p style="white-space:pre-wrap;font-size:15px;line-height:1.8;">「手術計畫：\n需要白皙的皮膚、橘紅的頭髮、漂亮的綠眼睛、修長的腿。\n四項材料已確認到齊。\n只差最後的『停電』時刻……」\n\n<br>角落寫著一行字：\n<span style="color:#f0e4c0;font-weight:600;">「主人的出生年份是 1929 年……最後兩位數是 29。」</span></p>
-                        <div class="btn-group"><button class="btn btn-yes" onclick="closeModal();showDoorHint()">記下了</button></div>
-                    `);
+            let input = [];
+
+            // 渲染密碼槽
+            const slots = lockEl.querySelectorAll('.password-slot');
+            slots.forEach((slot, idx) => {
+                slot.textContent = '';
+                slot.classList.remove('filled');
+            });
+
+            // 渲染數字鍵盤
+            numpadEl.innerHTML = '';
+            for (let i = 1; i <= 9; i++) {
+                const btn = document.createElement('button');
+                btn.className = 'numpad-btn';
+                btn.textContent = i;
+                btn.onclick = () => pressNum(i);
+                numpadEl.appendChild(btn);
+            }
+            const btnClear = document.createElement('button');
+            btnClear.className = 'numpad-btn clear';
+            btnClear.textContent = 'C';
+            btnClear.onclick = () => clearNum();
+            numpadEl.appendChild(btnClear);
+
+            const btn0 = document.createElement('button');
+            btn0.className = 'numpad-btn';
+            btn0.textContent = '0';
+            btn0.onclick = () => pressNum(0);
+            numpadEl.appendChild(btn0);
+
+            const btnConfirm = document.createElement('button');
+            btnConfirm.className = 'numpad-btn confirm';
+            btnConfirm.textContent = '✓';
+            btnConfirm.onclick = () => confirmNum();
+            numpadEl.appendChild(btnConfirm);
+
+            function pressNum(num) {
+                if (input.length >= length) return;
+                input.push(num);
+                updateSlots();
+            }
+
+            function clearNum() {
+                input = [];
+                updateSlots();
+            }
+
+            function confirmNum() {
+                if (input.length !== length) return;
+                const entered = input.join('');
+                if (entered === correctPassword) {
+                    onSuccess();
+                } else {
+                    showModal(`<h3>密碼錯誤</h3><p>輸入的密碼不正確，請再試一次。</p><div class="btn-group"><button class="btn btn-yes" onclick="closeModal()">重試</button></div>`);
+                    input = [];
+                    updateSlots();
+                }
+            }
+
+            function updateSlots() {
+                const slots2 = lockEl.querySelectorAll('.password-slot');
+                slots2.forEach((slot, idx) => {
+                    if (idx < input.length) {
+                        slot.textContent = '●';
+                        slot.classList.add('filled');
+                    } else {
+                        slot.textContent = '';
+                        slot.classList.remove('filled');
+                    }
                 });
-            }, 50);
+            }
         }
 
         // ============================================================
-        //  發電機圖片顯示 → 再輸入密碼
+        //  發電機通用函數
         // ============================================================
-
-        const generatorImages = {
-            generator1: 'obj_generator_1.jpg',
-            generator2: 'obj_generator_2.jpg',
-            generator3: 'obj_generator_3.jpg',
-            generator4: 'obj_generator_4.jpg'
-        };
-
-        const generatorLabels = {
-            generator1: '1號',
-            generator2: '2號',
-            generator3: '3號',
-            generator4: '4號總'
-        };
-
-        function showGeneratorImage(generatorId) {
-            const imgSrc = generatorImages[generatorId] || '';
-            const label = generatorLabels[generatorId] || '發電機';
-
+        function showGeneratorModal(label, generatorId) {
             if (state.generatorUnlocked) {
+                // 已經解鎖，直接顯示選擇
                 showLightChoice();
                 return;
             }
 
+            // 檢查是否已從盧卡斯那邊獲得密碼（模擬通話）
+            // 遊戲中直接顯示密碼鎖
             showModal(`
                 <h3>${label}發電機</h3>
-                <img src="${imgSrc}" alt="${label}發電機" onerror="this.style.display='none'">
                 <p>發電機上有一個四位數密碼鎖。</p>
-                <div class="btn-group">
-                    <button class="btn btn-yes" onclick="closeModal();showGeneratorPassword('${generatorId}')">輸入密碼</button>
-                    <button class="btn btn-no" onclick="closeModal()">先不要</button>
-                </div>
-            `);
-        }
-
-        function showGeneratorPassword(generatorId) {
-            const label = generatorLabels[generatorId] || '發電機';
-            showModal(`
-                <h3>${label}發電機 - 輸入密碼</h3>
-                <p>請輸入四位數密碼：</p>
+                <p style="font-size:13px;color:#8a8078;">（提示：密碼由盧卡斯在地下室發現，請透過語音通話取得）</p>
                 <div style="margin:12px 0;">
                     <div class="password-lock" id="genLock_${generatorId}">
                         <div class="password-slot" data-idx="0"></div>
@@ -1383,8 +1749,10 @@
                     <button class="btn btn-close" onclick="closeModal()">取消</button>
                 </div>
             `);
+
+            // 用 setTimeout 確保 DOM 已渲染
             setTimeout(() => {
-                initPasswordLock(`genLock_${generatorId}`, `genNumpad_${generatorId}`, state.generatorPassword, () => {
+                initPasswordLock(`genLock_${generatorId}`, `genNumpad_${generatorId}`, '6253', () => {
                     state.generatorUnlocked = true;
                     closeModal();
                     showLightChoice();
@@ -1393,99 +1761,13 @@
         }
 
         // ============================================================
-        //  道具取得函數
+        //  開燈／不開燈選擇
         // ============================================================
-
-        function takeSheet() {
-            state.hasCloth = true;
-            state.clothType = '床單';
-            closeModal();
-            showModal(`<h3>獲得床單</h3><p>你獲得了床單。</p><div class="btn-group"><button class="btn btn-yes" onclick="closeModal()">知道了</button></div>`);
-        }
-
-        function takeTowel() {
-            state.hasCloth = true;
-            state.clothType = '浴巾';
-            closeModal();
-            showModal(`<h3>獲得浴巾</h3><p>你獲得了浴巾。</p><div class="btn-group"><button class="btn btn-yes" onclick="closeModal()">知道了</button></div>`);
-        }
-
-        function takeBell() {
-            state.hasBell = true;
-            closeModal();
-            showModal(`<h3>獲得鈴鐺</h3><p>你獲得了鈴鐺。</p><div class="btn-group"><button class="btn btn-yes" onclick="closeModal()">知道了</button></div>`);
-        }
-
-        // ============================================================
-        //  密碼鎖通用
-        // ============================================================
-
-        function initPasswordLock(lockId, numpadId, correctPassword, onSuccess, length = 4) {
-            const lockEl = $(lockId);
-            const numpadEl = $(numpadId);
-            if (!lockEl || !numpadEl) return;
-
-            let input = [];
-            const slots = lockEl.querySelectorAll('.password-slot');
-
-            function updateSlots() {
-                slots.forEach((slot, idx) => {
-                    if (idx < input.length) {
-                        slot.textContent = '●';
-                        slot.classList.add('filled');
-                    } else {
-                        slot.textContent = '';
-                        slot.classList.remove('filled');
-                    }
-                });
-            }
-
-            numpadEl.innerHTML = '';
-            for (let i = 1; i <= 9; i++) {
-                const btn = document.createElement('button');
-                btn.className = 'numpad-btn';
-                btn.textContent = i;
-                btn.onclick = () => { if (input.length < length) { input.push(i);
-                        updateSlots(); } };
-                numpadEl.appendChild(btn);
-            }
-            const btnClear = document.createElement('button');
-            btnClear.className = 'numpad-btn clear';
-            btnClear.textContent = 'C';
-            btnClear.onclick = () => { input = [];
-                updateSlots(); };
-            numpadEl.appendChild(btnClear);
-
-            const btn0 = document.createElement('button');
-            btn0.className = 'numpad-btn';
-            btn0.textContent = '0';
-            btn0.onclick = () => { if (input.length < length) { input.push(0);
-                    updateSlots(); } };
-            numpadEl.appendChild(btn0);
-
-            const btnConfirm = document.createElement('button');
-            btnConfirm.className = 'numpad-btn confirm';
-            btnConfirm.textContent = '✓';
-            btnConfirm.onclick = () => {
-                if (input.length !== length) return;
-                if (input.join('') === correctPassword) {
-                    onSuccess();
-                } else {
-                    showModal(`<h3>密碼錯誤</h3><p>輸入的密碼不正確，請再試一次。</p><div class="btn-group"><button class="btn btn-yes" onclick="closeModal()">重試</button></div>`);
-                    input = [];
-                    updateSlots();
-                }
-            };
-            numpadEl.appendChild(btnConfirm);
-            updateSlots();
-        }
-
-        // ============================================================
-        //  開燈／不開燈
-        // ============================================================
-
         function showLightChoice() {
+            const charId = state.character;
             const clothName = state.clothType || '布';
+
+            // 檢查是否有布
             const hasCloth = state.hasCloth;
 
             showModal(`
@@ -1504,7 +1786,9 @@
             state.finalChoice = choice;
 
             if (choice === 'light') {
+                // 開燈 → 壞人格
                 if (state.hasCloth) {
+                    // 有布 → 丟布逃跑
                     showModal(`
                         <h3>燈亮了！</h3>
                         <p>壞人格主人提著刀衝進來！</p>
@@ -1515,9 +1799,11 @@
                         <div class="btn-group"><button class="btn btn-yes" onclick="closeModal();goToDoor()">衝向大門！</button></div>
                     `);
                 } else {
+                    // 無布 → 死亡
                     showEnding('bad', '你伸手去抓——什麼都沒有。他舉起刀……你的特質被奪走了。');
                 }
             } else {
+                // 不開燈 → 好人格
                 showModal(`
                     <h3>黑暗之中</h3>
                     <p>門被輕輕推開，一個顫抖的聲音說：</p>
@@ -1533,9 +1819,9 @@
         // ============================================================
         //  大門場景
         // ============================================================
-
         function goToDoor() {
             state.scene = 'door';
+            // 大門場景用特殊渲染
             renderDoorScene();
         }
 
@@ -1544,17 +1830,33 @@
             gameScene.style.backgroundSize = 'cover';
             gameScene.style.backgroundPosition = 'center';
 
+            // 清除舊的 clickable
             document.querySelectorAll('.clickable').forEach(el => el.remove());
             document.querySelectorAll('.scene-nav').forEach(el => el.remove());
 
-            // 密碼提示（點擊後顯示密碼）
+            // 黑暗遮罩（大門場景是黑暗的）
+            isDarkMode = true;
+            darkCanvas.style.display = 'block';
+            setupDarkCanvas();
+
+            // 如果有蠟燭或手機，保留光源
+            if (state.hasLight) {
+                // 保持光源
+            }
+
+            // 顯示密碼提示圖
+            const rect = gameScene.getBoundingClientRect();
+            const w = rect.width || window.innerWidth;
+            const h = rect.height || window.innerHeight;
+
+            // 密碼提示（點擊後出現）
             const hintEl = document.createElement('div');
             hintEl.className = 'clickable';
             hintEl.style.cssText = `
-                position:absolute; left:35%; top:12%; width:30%; height:12%;
+                position:absolute; left:35%; top:15%; width:30%; height:20%;
                 cursor:pointer; z-index:5;
                 border:2px solid rgba(180,160,130,0.2); border-radius:8px;
-                background:rgba(0,0,0,0.4);
+                background:rgba(0,0,0,0.3);
                 display:flex; align-items:center; justify-content:center;
                 font-size:14px; color:#b0a898; text-align:center;
             `;
@@ -1573,10 +1875,10 @@
             };
             gameScene.appendChild(hintEl);
 
-            // 密碼輸入
+            // 密碼輸入區
             const inputArea = document.createElement('div');
             inputArea.style.cssText = `
-                position:absolute; left:50%; bottom:22%; transform:translateX(-50%);
+                position:absolute; left:50%; bottom:25%; transform:translateX(-50%);
                 z-index:10; text-align:center;
                 background:rgba(0,0,0,0.6); padding:20px 30px; border-radius:16px;
                 border:1px solid rgba(180,160,130,0.15);
@@ -1599,8 +1901,10 @@
             timerEl.textContent = '10:00';
             gameScene.appendChild(timerEl);
 
+            // 啟動計時器
             startDoorTimer();
 
+            // 初始化密碼輸入
             let doorInput = [];
 
             function updateDoorSlots() {
@@ -1619,6 +1923,7 @@
                 });
             }
 
+            // 渲染數字鍵盤
             const numpadEl = document.getElementById('doorNumpad');
             if (numpadEl) {
                 numpadEl.innerHTML = '';
@@ -1626,22 +1931,30 @@
                     const btn = document.createElement('button');
                     btn.className = 'numpad-btn';
                     btn.textContent = i;
-                    btn.onclick = () => { if (doorInput.length < 2) { doorInput.push(i);
-                            updateDoorSlots(); } };
+                    btn.onclick = () => {
+                        if (doorInput.length >= 2) return;
+                        doorInput.push(i);
+                        updateDoorSlots();
+                    };
                     numpadEl.appendChild(btn);
                 }
                 const btnClear = document.createElement('button');
                 btnClear.className = 'numpad-btn clear';
                 btnClear.textContent = 'C';
-                btnClear.onclick = () => { doorInput = [];
-                    updateDoorSlots(); };
+                btnClear.onclick = () => {
+                    doorInput = [];
+                    updateDoorSlots();
+                };
                 numpadEl.appendChild(btnClear);
 
                 const btn0 = document.createElement('button');
                 btn0.className = 'numpad-btn';
                 btn0.textContent = '0';
-                btn0.onclick = () => { if (doorInput.length < 2) { doorInput.push(0);
-                        updateDoorSlots(); } };
+                btn0.onclick = () => {
+                    if (doorInput.length >= 2) return;
+                    doorInput.push(0);
+                    updateDoorSlots();
+                };
                 numpadEl.appendChild(btn0);
 
                 const btnConfirm = document.createElement('button');
@@ -1649,11 +1962,17 @@
                 btnConfirm.textContent = '✓';
                 btnConfirm.onclick = () => {
                     if (doorInput.length !== 2) return;
-                    if (doorInput.join('') === '29') {
+                    const entered = doorInput.join('');
+                    if (entered === '29') {
+                        // 密碼正確
                         clearInterval(state.timerInterval);
                         state.timerRunning = false;
-                        if (state.finalChoice === 'dark') showEnding('super');
-                        else showEnding('good');
+                        const isSuper = (state.finalChoice === 'dark');
+                        if (isSuper) {
+                            showEnding('super');
+                        } else {
+                            showEnding('good');
+                        }
                     } else {
                         showModal(`<h3>密碼錯誤</h3><p>輸入的密碼不正確，請再試一次。</p><div class="btn-group"><button class="btn btn-yes" onclick="closeModal()">重試</button></div>`);
                         doorInput = [];
@@ -1663,15 +1982,17 @@
                 numpadEl.appendChild(btnConfirm);
             }
 
+            // 如果有鈴鐺，顯示警告
             if (state.hasBell) {
                 const warnEl = document.createElement('div');
                 warnEl.className = 'bell-warning';
-                warnEl.style.cssText = 'position:absolute;bottom:15%;left:50%;transform:translateX(-50%);z-index:10;';
+                warnEl.style.cssText = 'position:absolute;bottom:20%;left:50%;transform:translateX(-50%);z-index:10;';
                 warnEl.innerHTML = `
                     <span class="bell-icon">🔔</span>
                     <span class="bell-text">鈴鐺聲暴露了你的位置！時間縮短為 6 分鐘！</span>
                 `;
                 gameScene.appendChild(warnEl);
+                // 計時器改為6分鐘
                 clearInterval(state.timerInterval);
                 state.timer = 360;
                 const timerEl2 = document.getElementById('doorTimer');
@@ -1679,32 +2000,39 @@
                 startDoorTimer();
             }
 
+            // 返回按鈕（回到場景）
             const backBtn = document.createElement('div');
             backBtn.className = 'scene-nav';
             backBtn.style.cssText =
-                'position:absolute;top:20px;left:20px;z-index:10;cursor:pointer;opacity:0.5;transition:opacity 0.3s;';
+                'position:absolute;top:20px;left:20px;z-index:10;cursor:pointer;opacity:0.6;transition:opacity 0.3s;';
             backBtn.innerHTML = `
                 <svg width="40" height="40" viewBox="0 0 40 40">
-                    <rect x="2" y="2" width="36" height="36" rx="8" fill="rgba(0,0,0,0.6)" stroke="rgba(255,255,255,0.15)" stroke-width="1.5"/>
+                    <rect x="2" y="2" width="36" height="36" rx="8" fill="rgba(0,0,0,0.6)" stroke="rgba(255,255,255,0.2)" stroke-width="1.5"/>
                     <path d="M22 14 L14 20 L22 26" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
                 </svg>
             `;
             backBtn.onmouseenter = () => backBtn.style.opacity = '1';
-            backBtn.onmouseleave = () => backBtn.style.opacity = '0.5';
+            backBtn.onmouseleave = () => backBtn.style.opacity = '0.6';
             backBtn.onclick = () => {
                 if (confirm('確定要放棄大門逃脫嗎？')) {
                     showEnding('bad', '你放棄了逃脫的機會……');
                 }
             };
             gameScene.appendChild(backBtn);
+
+            // 更新道具欄
+            updateInventory();
         }
 
         // ============================================================
         //  計時器
         // ============================================================
-
         function startDoorTimer() {
-            if (state.timerInterval) clearInterval(state.timerInterval);
+            if (state.timerInterval) {
+                clearInterval(state.timerInterval);
+                state.timerInterval = null;
+            }
+
             state.timerRunning = true;
             state.timerInterval = setInterval(() => {
                 state.timer--;
@@ -1713,8 +2041,11 @@
                     const mins = Math.floor(state.timer / 60);
                     const secs = state.timer % 60;
                     timerEl.textContent = `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
-                    if (state.timer <= 60) timerEl.classList.add('warning');
+                    if (state.timer <= 60) {
+                        timerEl.classList.add('warning');
+                    }
                 }
+
                 if (state.timer <= 0) {
                     clearInterval(state.timerInterval);
                     state.timerRunning = false;
@@ -1726,14 +2057,25 @@
         // ============================================================
         //  好人格日記（4頁）
         // ============================================================
-
         function showNotebookPages() {
             let currentPage = 0;
             const pages = [
-                { img: 'obj_notebook_page1.jpg', text: '第一天\n\n他又在看著那四個人了。\n我知道他在想什麼——他想要他們的頭髮、眼睛、皮膚和腿。\n我阻止不了他，但我可以在黑暗中醒來。\n只要他們不開燈……' },
-                { img: 'obj_notebook_page2.jpg', text: '第三天\n\n他已經觀察他們很久了。\n橘紅頭髮的女孩、綠色眼睛的男孩、白皙肌膚的女孩、修長雙腿的男孩。\n他稱他們為「材料」。\n我稱他們為……人。' },
-                { img: 'obj_notebook_page3.jpg', text: '第五天\n\n今晚就是計畫實施的日子。\n他準備了雪崩、輪胎故障，還有那棟該死的房子。\n我只能死撐著不睡覺，祈禱自己能撐過今晚。\n拜託，不要讓他們按開燈……' },
-                { img: 'obj_notebook_page4.jpg', text: '最後一頁\n\n如果他們逃出去了，請記住：\n這棟屋子的主人出生於 1929 年。\n大門密碼是年份的最後兩位數。\n\n（角落寫著：29）' }
+                {
+                    img: 'obj_notebook_page1.jpg',
+                    text: '第一天\n\n他又在看著那四個人了。\n我知道他在想什麼——他想要他們的頭髮、眼睛、皮膚和腿。\n我阻止不了他，但我可以在黑暗中醒來。\n只要他們不開燈……'
+                },
+                {
+                    img: 'obj_notebook_page2.jpg',
+                    text: '第三天\n\n他已經觀察他們很久了。\n橘紅頭髮的女孩、綠色眼睛的男孩、白皙肌膚的女孩、修長雙腿的男孩。\n他稱他們為「材料」。\n我稱他們為……人。'
+                },
+                {
+                    img: 'obj_notebook_page3.jpg',
+                    text: '第五天\n\n今晚就是計畫實施的日子。\n他準備了雪崩、輪胎故障，還有那棟該死的房子。\n我只能死撐著不睡覺，祈禱自己能撐過今晚。\n拜託，不要讓他們按開燈……'
+                },
+                {
+                    img: 'obj_notebook_page4.jpg',
+                    text: '最後一頁\n\n如果他們逃出去了，請記住：\n這棟屋子的主人出生於 1929 年。\n大門密碼是年份的最後兩位數。\n\n（角落寫著：29）'
+                }
             ];
 
             function renderPage() {
@@ -1745,21 +2087,22 @@
                     <div class="btn-group">
                         ${currentPage > 0 ? `<button class="btn btn-yes" onclick="closeModal();currentPage--;renderPage();">上一頁</button>` : ''}
                         ${currentPage < pages.length - 1 ? `<button class="btn btn-yes" onclick="closeModal();currentPage++;renderPage();">下一頁</button>` : ''}
-                        ${currentPage === pages.length - 1 ? `<button class="btn btn-yes" onclick="closeModal();showDoorHint()">記下密碼</button>` : ''}
+                        ${currentPage === pages.length - 1 ? `<button class="btn btn-yes" onclick="closeModal();showDoorHint('Astrid')">記下密碼</button>` : ''}
                         <button class="btn btn-no" onclick="closeModal()">關閉</button>
                     </div>
                 `);
             }
+
+            // 將 renderPage 暴露到全域
             window.currentPage = currentPage;
             window.renderPage = renderPage;
             renderPage();
         }
 
         // ============================================================
-        //  大門密碼提示
+        //  大門密碼提示（艾絲特／芙蕾雅用）
         // ============================================================
-
-        function showDoorHint() {
+        function showDoorHint(charId) {
             showModal(`
                 <h3>大門密碼提示</h3>
                 <p style="font-size:18px;text-align:center;color:#f0e4c0;">
@@ -1776,16 +2119,19 @@
         // ============================================================
         //  結局
         // ============================================================
-
         function showEnding(type, customText = '') {
             if (state.gameEnded) return;
             state.gameEnded = true;
-            if (state.timerInterval) clearInterval(state.timerInterval);
+            if (state.timerInterval) {
+                clearInterval(state.timerInterval);
+                state.timerInterval = null;
+            }
 
             const charId = state.character;
+            const name = CHARACTERS[charId] ? CHARACTERS[charId].name : '你';
 
-            let title = '',
-                text = '';
+            let title = '';
+            let text = '';
 
             if (type === 'good') {
                 const endings = {
@@ -1806,11 +2152,12 @@
                 title = '🌙 超級結局';
                 text = superEndings[charId] || '你選擇了黑暗，好人格為你打開了大門。';
             } else {
+                // bad
                 const badEndings = {
-                    Astrid: '你的橘紅頭髮被奪走了。',
-                    Elias: '你的綠色眼睛被奪走了。',
-                    Freya: '你的白皙肌膚被奪走了。',
-                    Lukas: '你的修長雙腿被奪走了。'
+                    Astrid: '密碼錯誤。燈亮了——她看到自己的橘紅頭髮被剪下放在托盤上。',
+                    Elias: '時間到了。那人拿著綠色隱形眼鏡晃了晃：「完美的顏色。」',
+                    Freya: '警報響起。冰冷的手貼上她的臉頰——「皮膚移植示意圖」在燈下發亮。',
+                    Lukas: '時間到了。牆上照片標註著「目標確認：盧卡斯」。'
                 };
                 title = '💀 壞結局';
                 text = customText || badEndings[charId] || '你沒能逃出這棟房子。';
@@ -1829,7 +2176,6 @@
         // ============================================================
         //  彈窗控制
         // ============================================================
-
         function showModal(html) {
             modalContent.innerHTML = html;
             modal.classList.add('active');
@@ -1839,16 +2185,49 @@
             modal.classList.remove('active');
         }
 
+        // 點擊外部關閉
         modal.addEventListener('click', (e) => {
             if (e.target === modal) closeModal();
         });
 
         // ============================================================
+        //  道具欄更新
+        // ============================================================
+        function updateInventory() {
+            const slots = inventoryBar.querySelectorAll('.inventory-slot');
+            const items = state.inventory;
+
+            // 自訂道具顯示名稱
+            const displayNames = {
+                '床單': '🛏️',
+                '浴巾': '🧣',
+                '抹布': '🧽',
+                '防水布': '🔵',
+                '鈴鐺': '🔔',
+                '蠟燭': '🕯️',
+                '鑰匙': '🔑'
+            };
+
+            slots.forEach((slot, idx) => {
+                if (idx < items.length) {
+                    const item = items[idx];
+                    const icon = displayNames[item] || '📦';
+                    slot.innerHTML = `<span style="font-size:28px;">${icon}</span><div style="font-size:10px;color:#8a8078;margin-top:2px;">${item}</div>`;
+                    slot.className = 'inventory-slot filled';
+                } else {
+                    slot.innerHTML = '';
+                    slot.className = 'inventory-slot';
+                }
+            });
+        }
+
+        // ============================================================
         //  視窗大小變化
         // ============================================================
-
         window.addEventListener('resize', () => {
-            if (document.getElementById('game').classList.contains('active')) {
+            if (gameScreen.classList.contains('active')) {
+                setupDarkCanvas();
+                // 重新渲染場景（保持當前場景）
                 const currentScene = state.scene;
                 if (currentScene && currentScene !== 'door') {
                     renderScene();
@@ -1858,16 +2237,28 @@
             }
         });
 
+        // ============================================================
+        //  鍵盤快捷
+        // ============================================================
         document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape' && modal.classList.contains('active')) closeModal();
+            if (e.key === 'Escape') {
+                if (modal.classList.contains('active')) {
+                    closeModal();
+                }
+            }
         });
 
-        console.log('🕯️ 雪夜逃脫 v1.0 已載入');
-        console.log('🔑 發電機密碼：6253');
+        // ============================================================
+        //  初始化
+        // ============================================================
+        console.log('🕯️ 雪夜逃脫已載入');
+        console.log('📖 角色可選：', Object.keys(CHARACTERS).join(', '));
+        console.log('🔑 發電機密碼：6253（由盧卡斯發現）');
         console.log('🚪 大門密碼：29');
-        console.log('📓 日記密碼：1321');
+        console.log('📓 日記／手術筆記密碼：1321');
         console.log('🗄️ 櫃子密碼：198162');
         console.log('🏚️ 倉庫密碼：3527');
+        console.log('💡 選擇開燈需要布類道具才能存活！');
     </script>
 </body>
 </html>
