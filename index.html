@@ -1,17 +1,3 @@
-以下是根據您所有最新要求修正的最終版本 `index.html`。
-
-**本次修正重點：**
-
-1. **移除客廳桌子**：刪除 `table` 物件，點擊「查看紙條」直接顯示 `ui_password_lock_6.png` 圖片。
-2. **倉庫鐵門**：點擊後先顯示 `obj_storehouse_door.jpg` 圖片，再點擊按鈕才彈出密碼鎖。
-3. **好人格日記**：改為全螢幕放大檢視圖片，移除所有內嵌文字，點擊下一頁/上一頁正常切換（已修復）。
-4. **變電箱（發電機）**：點擊後直接全螢幕放大顯示圖片，無需再點「輸入密碼」，圖片上已包含密碼鎖。
-5. **書桌**：改為「研究如何引發雪崩的筆記」，點擊顯示 `obj_avalanche_note.jpg` 圖片。
-6. **浴室頭髮圖**：點擊洗手台顯示 `obj_hair.jpg`（內含頭髮＋隱形眼鏡）。
-7. **手術筆記**：封面使用 `obj_notebook.jpg`（與好人格日記封面共用），輸入密碼 `1321` 後顯示 `obj_surgery_note_open.jpg` 圖片（已刪除文字敘述）。
-8. **3號發電機**：已確保圖片正確顯示。
-
-```html
 <!DOCTYPE html>
 <html lang="zh-Hant">
 <head>
@@ -1143,6 +1129,17 @@
                     state.sceneHistory.push('Elias');
                     state.scene = 'EliasLiving';
                     renderScene();
+                    setTimeout(() => {
+                        showModal(`
+                            <h3>客廳</h3>
+                            <p>你走出浴室，來到客廳。這裡一片漆黑，什麼都看不見。</p>
+                            <p>你摸黑前進，突然腳踢到了什麼——</p>
+                            <p style="font-weight:600;color:#f0e4c0;">「……桌子。」</p>
+                            <p>你蹲下來揉了揉膝蓋。但這一踢，好像撞到了什麼東西。</p>
+                            <p>你伸手摸了摸——是一個櫃子，上面有密碼鎖。旁邊好像掉了一張紙。</p>
+                            <div class="btn-group"><button class="btn btn-yes" onclick="closeModal()">查看紙條</button></div>
+                        `);
+                    }, 400);
                     break;
 
                 case 'hint_paper':
@@ -1218,7 +1215,7 @@
                 case 'drawer':
                     if (state.surgeryNoteUnlocked) {
                         showModal(`
-                            <h3>壞人格手術筆記</h3>
+                            <h3>手術筆記</h3>
                             <img src="obj_surgery_note_open.jpg" alt="手術筆記內頁" onerror="this.style.display='none'">
                             <div class="btn-group"><button class="btn btn-yes" onclick="closeModal()">知道了</button></div>
                         `);
@@ -1367,7 +1364,7 @@
                     state.surgeryNoteUnlocked = true;
                     closeModal();
                     showModal(`
-                        <h3>壞人格手術筆記</h3>
+                        <h3>手術筆記</h3>
                         <img src="obj_surgery_note_open.jpg" alt="手術筆記內頁" onerror="this.style.display='none'">
                         <div class="btn-group"><button class="btn btn-yes" onclick="closeModal()">知道了</button></div>
                     `);
@@ -1795,7 +1792,7 @@
                     <div class="page-nav-group">
                         ${currentPage > 0 ? `<button class="btn btn-yes" onclick="closeModal();state.notebookPage=${currentPage-1};showNotebookPages();">◀ 上一頁</button>` : ''}
                         ${currentPage < total - 1 ? `<button class="btn btn-yes" onclick="closeModal();state.notebookPage=${currentPage+1};showNotebookPages();">下一頁 ▶</button>` : ''}
-                        ${currentPage === total - 1 ? `<button class="btn btn-yes" onclick="closeModal();showDoorHint()">記下密碼</button>` : ''}
+                        ${currentPage === total - 1 ? `<button class="btn btn-yes" onclick="closeModal()">關閉</button>` : ''}
                         <button class="btn btn-no" onclick="closeModal()">關閉</button>
                     </div>
                 `);
