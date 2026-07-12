@@ -870,7 +870,7 @@
             finalChoice: null,
             hasCloth: false,
             wardrobeUnlocked: false,
-            totalTimer: 1800,  // 30分鐘 = 1800秒
+            totalTimer: 1500,  // 30分鐘 = 1500秒
             totalTimerRunning: false,
             totalTimerInterval: null,
             clothType: '',
@@ -962,7 +962,7 @@
             showOpeningStory(charId);
             
             // ===== 啟動總計時器（30分鐘） =====
-            state.totalTimer = 1800;
+            state.totalTimer = 1500;
             state.totalTimerRunning = true;
             if (state.totalTimerInterval) clearInterval(state.totalTimerInterval);
             state.totalTimerInterval = setInterval(function() {
@@ -2349,6 +2349,7 @@
         console.log('📓 日記密碼：1321');
         console.log('🗄️ 櫃子密碼：198162');
         console.log('🏚️ 倉庫密碼：3527');
+        console.log('🗄️ 衣櫃密碼：2981');
     </script>
 </body>
 </html>
